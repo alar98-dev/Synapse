@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: synapse
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+
+  web:
+    build: .
+    command: gunicorn synapse_project.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://synapse:synapse@db:5432/synapse
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./test_reports:/test_reports
+  worker:
+    build: .
+    command: celery -A synapse_project worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgres://synapse:synapse@db:5432/synapse
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  pgdata:
