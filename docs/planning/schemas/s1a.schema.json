@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "S1a Event Schema",
+  "type": "object",
+  "required": ["event", "version", "timestamp", "correlation_id", "action"],
+  "properties": {
+    "event": {"type": "string"},
+    "version": {"type": "string"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string"},
+    "user_id": {"type": ["string", "null"]},
+    "action": {"type": "string"},
+    "entity_id": {"type": ["string", "null"]},
+    "target": {"type": ["object", "null"]},
+    "metadata": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "S4 Audit Schema",
+  "type": "object",
+  "required": ["event", "version", "timestamp", "correlation_id", "audit_id", "actor_id", "entity_id", "action"],
+  "properties": {
+    "event": {"type": "string"},
+    "version": {"type": "string"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string"},
+    "audit_id": {"type": "string"},
+    "actor_id": {"type": "string"},
+    "entity_id": {"type": "string"},
+    "entity_type": {"type": ["string", "null"]},
+    "action": {"type": "string"},
+    "details": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}
