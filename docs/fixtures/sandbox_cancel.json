@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/sandbox/jobs/<id>/cancel/",
+    "headers": { "Authorization": "Bearer <token>" },
+    "body": {}
+  },
+  "response": {
+    "status_code": "<int: 200|400|500>",
+    "body": { "detail": "<string>" }
+  },
+  "side_effects": {
+    "db": ["ExecutionJob.status set to canceled, finished_at updated, container_id cleared"],
+    "task_queue": []
+  }
+}

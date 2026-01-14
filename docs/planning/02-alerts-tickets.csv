@@ -1,0 +1,7 @@
+key,title,body,labels,assignee
+ALERT-ENRICH,ENRICH: adicionar severity/context ao payload de alertas,"Adicionar fields severity, context (course_id, lesson_id, item_id, user_id) e alert_history ao endpoint /api/v1/cognition/alerts/","backend,enhancement,high",
+ALERT-FEAT-MODAL,FEAT: modal de intervenção com registro de ação,"Criar InterventionModal com history, severity, breadcrumbs e CTA 'Registrar Intervenção'","frontend,feature,high",
+ALERT-ROUTE,DOC: roteamento permanente /alerts/<alert_id> e deep-linking,"Adicionar rota e deep-link para alert detail e permitir abrir modal via URL","frontend,docs",
+ALERT-AUDIT,FEAT: implementar audit log (S4) e API de listagem,"Implementar audit log append-only e endpoint GET /api/v1/cognition/alerts/<id>/history","backend,feature,high",
+ALERT-TELEMETRY,TELE: emitir S1a/S2 em ações críticas,"Emitir eventos S1a ao registrar intervenção e S2 ao mudar status do alerta","infra,telemetry",
+ALERT-UX,UX: microtests com instrutor/admin e ajustes,"Organizar 3 microtests com perfis instrutor/admin/observer e aplicar ajustes de UI","ux,research"

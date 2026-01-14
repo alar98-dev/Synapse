@@ -1,0 +1,9 @@
+.chat-widget{display:flex;flex-direction:column;gap:.5rem;background:var(--card);padding:.6rem;border-radius:8px}
+.chat-header{font-weight:600;border-bottom:1px solid rgba(255,255,255,.03);padding-bottom:.4rem}
+.chat-body{max-height:180px;overflow:auto;display:flex;flex-direction:column;gap:.4rem;padding:0.4rem 0}
+.chat-msg{padding:.4rem;border-radius:6px}
+.chat-msg.me{background:rgba(59,130,246,.12);align-self:flex-end}
+.chat-msg.other{background:rgba(255,255,255,.02);align-self:flex-start}
+.chat-input{display:flex;gap:.5rem}
+.chat-input input{flex:1;padding:.5rem;border-radius:8px;border:1px solid rgba(255,255,255,.04);background:transparent;color:var(--text)}
+.chat-input .btn{padding:.4rem .6rem}

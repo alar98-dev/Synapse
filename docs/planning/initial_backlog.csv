@@ -1,0 +1,11 @@
+Key,Title,Description,Labels,Priority,Estimate,Assignee,Dependency
+PL-001,DashboardInsightModal Implementation,"Enable dashboard CTA; implement /core/dashboard/insights/; emit S1a and persist S4 audit entries.",frontend,High,2d,@frontend-lead, 
+PL-002,Enrich Sessions Payload,"Add session_id/story_id/course_id/lesson_id/severity to /cognition/sessions/; make SessionCard clickable.",backend,High,1.5d,@backend-lead,PL-001
+ALERT-001,Alert: Intervention Modal & Routing,"Implement /alerts/<alert_id>, InterventionModal with history; persist append-only audit S4 on interventions.",frontend;backend;telemetry,High,3d,@product-owner, 
+ALERT-002,Alert: Enrich Alert Payload,"Persist severity and context for alerts; emit S1a and S2 on state changes.",backend,High,1d,@backend-lead,ALERT-001
+COURSES-001,Courses CRUD API,"Implement POST/PUT/DELETE /api/v1/courses/ with S4 audit on mutations; list with pagination.",backend,High,3d,@backend-lead, 
+SUB-001,Submission History & Streaming,"Add POST /submissions/, GET /submissions/?lesson_id= and streaming /submissions/<id>/logs/stream; persist history S4.",backend;frontend,High,3d,@backend-lead, 
+MAT-001,Materials MVP Upload API,"Implement /api/materials/ POST (multipart) + background processing; emit S1a.upload_complete and S4.material_association.",backend;infra,High,3d,@backend-lead, 
+AI-001,AI Center Sessions & Commands,"Add /ai/sessions/, /ai/sessions/<id>/commands/, persist logs; emit S1a/S2/S3/S4; WS status UI and queue replay.",backend;frontend,High,4d,@ai-team, 
+INT-001,Telemetry Contract Tests,"Add JSON Schema contract tests for INT-001 and enforce via CI gate.",infra;telemetry,High,1d,@infra, 
+INT-002,Append-only Audit Service MVP,"Implement append-only Audit Service endpoints + storage; start with Alerts and Submissions.",backend;infra,High,3d,@backend-lead,INT-001

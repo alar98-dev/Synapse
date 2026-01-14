@@ -1,0 +1,68 @@
+<div class="classroom-view">
+    <div class="classroom-layout">
+        <aside class="classroom-sidebar">
+            <div class="course-info">
+                <button class="btn-back" onclick="navigate('/my-learning')">⬅ Voltar</button>
+                <h3 id="class-course-title">Carregando curso...</h3>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" style="width: 45%;"></div>
+                    <span>45% concluído</span>
+                </div>
+            </div>
+            <nav class="curriculum-tree" id="curriculum-nav">
+                <!-- Módulos e Aulas injetados aqui -->
+            </nav>
+        </aside>
+
+        <main class="classroom-main">
+            <header class="classroom-header">
+                <h2 id="current-lesson-title">Bem-vindo à Aula</h2>
+                <div class="header-actions">
+                    <button class="btn secondary outline small" onclick="toggleDrawer('notes-drawer')">📝 Anotações</button>
+                    <button class="btn secondary outline small" onclick="toggleDrawer('ai-tutor-drawer')">🧠 AI Tutor</button>
+                </div>
+            </header>
+
+            <div class="lesson-player" id="lesson-player-area">
+                <div class="player-container">
+                    <!-- Placeholder para Video/Content -->
+                    <div class="content-placeholder">
+                        <i class="icon-play">▶</i>
+                        <p>Inicie o conteúdo da aula</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="lesson-details">
+                <div class="tabs-minimal">
+                    <button class="tab-link active">Descrição</button>
+                    <button class="tab-link">Materiais</button>
+                    <button class="tab-link">Discussão</button>
+                </div>
+                <div class="tab-pane" id="lesson-desc">
+                    <p>Conteúdo textual da aula carregado dinamicamente aqui...</p>
+                </div>
+            </section>
+
+            <footer class="classroom-footer">
+                <button class="btn ghost" id="btn-prev-lesson">Aula Anterior</button>
+                <button class="btn primary" id="btn-complete-lesson">Concluir e Próxima</button>
+            </footer>
+        </main>
+
+        <!-- Contextual Drawers -->
+        <aside class="classroom-drawer hidden" id="ai-tutor-drawer">
+            <div class="drawer-header">
+                <h3>Synapse AI Tutor</h3>
+                <button class="close-btn" onclick="toggleDrawer('ai-tutor-drawer')">×</button>
+            </div>
+            <div class="ai-chat-messages" id="ai-chat-box">
+                <div class="message ai">Olá! Estou analisando o conteúdo desta aula. Quer que eu resuma os pontos principais?</div>
+            </div>
+            <div class="ai-input-area">
+                <input type="text" placeholder="Pergunte sobre a aula...">
+                <button class="btn-send">➤</button>
+            </div>
+        </aside>
+    </div>
+</div>

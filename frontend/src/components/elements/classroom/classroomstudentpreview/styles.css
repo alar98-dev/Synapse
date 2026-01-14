@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Classroomstudentpreview */
+.syn-element.syn-classroomstudentpreview {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-classroomstudentpreview .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-classroomstudentpreview .syn-element__body {
+  margin-top: 6px;
+}

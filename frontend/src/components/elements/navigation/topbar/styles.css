@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Topbar */
+.syn-element.syn-topbar {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-topbar .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-topbar .syn-element__body {
+  margin-top: 6px;
+}

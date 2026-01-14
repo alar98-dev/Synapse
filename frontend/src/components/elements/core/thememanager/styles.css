@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Thememanager */
+.syn-element.syn-thememanager {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-thememanager .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-thememanager .syn-element__body {
+  margin-top: 6px;
+}

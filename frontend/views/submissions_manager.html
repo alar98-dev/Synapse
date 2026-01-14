@@ -1,0 +1,52 @@
+<div class="view-header">
+    <div class="view-title">
+        <h1>Gerenciar Submissões</h1>
+        <p>Acompanhe o desempenho dos alunos nos exercícios de código.</p>
+    </div>
+</div>
+
+<div class="filter-bar" style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+    <select id="filter-course" class="form-select">
+        <option value="">Todos os Cursos</option>
+    </select>
+    <select id="filter-status" class="form-select">
+        <option value="all">Todos os Status</option>
+        <option value="pending">Pendente</option>
+        <option value="running">Executando</option>
+        <option value="success">Sucesso</option>
+        <option value="failed">Falha</option>
+    </select>
+</div>
+
+<div class="card">
+    <table class="table" style="width: 100%;">
+        <thead>
+            <tr>
+                <th>Aluno</th>
+                <th>Exercício</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="submissions-table-body">
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">Carregando submissões...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="submission-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Detalhes da Submissão</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="code-viewer" id="submission-code" style="background: #1e1e1e; padding: 1rem; border-radius: 8px; font-family: monospace; overflow-x: auto; margin-bottom: 1rem;"></div>
+            <h4>Resultado / Log:</h4>
+            <div id="submission-log" style="background: #000; color: #0f0; padding: 1rem; border-radius: 8px; font-family: monospace; white-space: pre-wrap;"></div>
+        </div>
+    </div>
+</div>

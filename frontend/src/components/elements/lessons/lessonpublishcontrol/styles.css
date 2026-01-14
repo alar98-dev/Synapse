@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Lessonpublishcontrol */
+.syn-element.syn-lessonpublishcontrol {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-lessonpublishcontrol .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-lessonpublishcontrol .syn-element__body {
+  margin-top: 6px;
+}

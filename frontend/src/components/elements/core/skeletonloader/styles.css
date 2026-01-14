@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Skeletonloader */
+.syn-element.syn-skeletonloader {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-skeletonloader .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-skeletonloader .syn-element__body {
+  margin-top: 6px;
+}

@@ -1,0 +1,46 @@
+<div class="home-view">
+    <header class="view-header">
+        <div class="welcome-section">
+            <h1 id="welcome-message">Olá, Usuário</h1>
+            <p id="dashboard-subtitle">Aqui está o que está acontecendo no seu ecossistema hoje.</p>
+        </div>
+        <div class="view-actions">
+            <button id="btn-custom-widgets" class="btn secondary small">⚙️ Customizar</button>
+        </div>
+    </header>
+
+    <div class="stats-ribbon" id="stats-container">
+        <!-- Dynamic Widgets -->
+    </div>
+
+    <div class="dashboard-grid">
+        <section class="dash-column main">
+            <div class="card widget-card">
+                <h3>Atividade Recente</h3>
+                <div id="recent-activity" class="activity-feed">
+                    <p class="empty-state">Nenhuma atividade recente.</p>
+                </div>
+            </div>
+
+            <div class="card widget-card" id="widget-cta">
+                <!-- Contextual CTA -->
+            </div>
+        </section>
+
+        <aside class="dash-column side">
+            <div class="card widget-card">
+                <h3>Insights de IA</h3>
+                <div id="ai-insights" class="ai-box">
+                    <p class="shimmer">Analisando dados...</p>
+                </div>
+            </div>
+
+            <div class="card widget-card">
+                <h3>Próximos Eventos</h3>
+                <div id="upcoming-events" class="event-list">
+                    <p class="empty-state">Sem eventos agendados.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>

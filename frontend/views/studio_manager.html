@@ -1,0 +1,28 @@
+<div class="studio-view">
+    <header class="view-header">
+        <div class="title-area">
+            <h1>Estúdio de Criação</h1>
+            <p>Gerencie seus cursos e conteúdos educacionais</p>
+        </div>
+        <div class="view-actions">
+            <div class="search-box">
+                <input type="text" id="studio-search" placeholder="Filtrar cursos...">
+            </div>
+            <button class="btn primary" onclick="navigate('/builder', {mode: 'create'})">➕ Novo Curso</button>
+        </div>
+    </header>
+
+    <div class="studio-filters">
+        <button class="filter-chip active" data-filter="all">Todos</button>
+        <button class="filter-chip" data-filter="active">Ativos</button>
+        <button class="filter-chip" data-filter="draft">Rascunhos</button>
+        <button class="filter-chip" data-filter="archived">Arquivados</button>
+    </div>
+
+    <div class="course-grid" id="studio-course-grid">
+        <!-- Dynamic Course Cards -->
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+    </div>
+</div>

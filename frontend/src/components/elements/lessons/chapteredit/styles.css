@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Chapteredit */
+.syn-element.syn-chapteredit {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-chapteredit .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-chapteredit .syn-element__body {
+  margin-top: 6px;
+}

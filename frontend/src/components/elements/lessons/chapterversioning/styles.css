@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Chapterversioning */
+.syn-element.syn-chapterversioning {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-chapterversioning .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-chapterversioning .syn-element__body {
+  margin-top: 6px;
+}

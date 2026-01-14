@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Coursemetrics */
+.syn-element.syn-coursemetrics {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-coursemetrics .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-coursemetrics .syn-element__body {
+  margin-top: 6px;
+}

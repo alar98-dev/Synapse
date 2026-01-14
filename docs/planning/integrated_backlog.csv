@@ -1,0 +1,21 @@
+key,title,description,labels,priority,estimate,dependency,assignee
+INT-001,Telemetry: Define S1a–S4 Event Schema and Registry,Create canonical event schemas, naming conventions, and registry for S1a/S2/S3/S4; include contract tests and SDK hooks,infra,telemetry,high,5,,telemetry-lead
+INT-002,Audit Service (S4 central),Implement central append-only audit log service and API (/audit/) used by alerts, courses, submissions, actions,audit,backend,high,8,,backend-lead
+INT-003,Dashboard Insight Modal (PL-INSIGHT),Modal that shows story/session context and CTAs; emit S1a on actions; deep links to Alert/Course,frontend,feature,high,8,INT-002,frontend-lead
+INT-004,Alert Intervention Modal & Routing,Implement `/alerts/<id>` route, InterventionModal with history and audit write (S4),frontend,backend,high,8,INT-002,product-owner
+INT-005,Submission History + Streaming,Submission APIs + SSE/WS logs streaming + UI components (history + run),backend,infra,high,13,,backend-lead
+INT-006,AI Center: Sessions, Commands & Logs,Persist sessions, commands, logs; command_id, queue/replay on reconnect; emit S1a/S2/S3/S4,backend,frontend,high,10,,ai-lead
+INT-007,Billing: Subscriptions & Checkout,Endpoints and UI for subscriptions, receipts, webhooks; integrate plan_limits and S1a/S3 events,billing,backend,high,8,,payments-lead
+INT-008,Materials: Upload API + UI,Implement `/api/materials/` upload, processing, badges, and telemetry; resumable uploads opt-in,backend,frontend,high,8,,content-lead
+INT-009,Courses CRUD & Publish Workflow,Implement courses CRUD, publish endpoint, and audit trail; CourseCard progress badges,courses,backend,high,8,,courses-lead
+INT-010,Global Breadcrumb & Badge Component,Shared frontend component and routing pattern for breadcrumbs + badges (Dashboard/Alert/Course),frontend,ux,medium,5,INT-003,frontend-lead
+INT-011,ToastService & Error Handling,Global toasts, consistent error handling and auth interceptors (401/timeout handling),frontend,medium,3,,frontend-lead
+INT-012,Telemetry: Correlation ID & Sampling,Add correlation_id to cross-service events, define sampling rules for high-card events (upload_progress),infra,telemetry,high,3,INT-001,telemetry-lead
+INT-013,QA: Telemetry Contract Tests & E2E,Add contract tests and E2E suites validating S1a–S4 emissions across critical flows,qa,high,5,INT-001,qa-lead
+INT-014,Permissions & Roles: Alerts/Intervention,Role-based action gating & clear 403 messages in UI (instructor/admin),security,medium,5,INT-004,security-lead
+INT-015,Billing: Plan Limits Visibility & Alerts,Expose plan_limits in API and UI; show quotas (tokens, private courses) with warnings,billing,medium,5,INT-007,payments-lead
+INT-016,Performance: Prefetching & P95 targets,Prefetch detail for cards and modal caching; set perf targets (modal ≤250–300ms),perf,medium,5,INT-003,perf-lead
+INT-017,Notifications / SLA Escalation,Implement SLA progress & automated escalation for high-severity alerts,alerts,backend,medium,8,INT-004,ops-lead
+INT-018,Materials: Search Index & Filters,Add full-text index and debounced filters for materials search; persist filters and pagination,search,medium,5,INT-008,search-lead
+INT-019,UX: Microtests for Critical Flows,Run microtests for Dashboard Modal, Alert Modal, Course Create, Submissions and Billing UX,ux,research,medium,3,,ux-lead
+INT-020,CSV/Issues Export for Tickets,Export all planning tickets into CSV/Issue templates for tracker tooling,docs,low,1,,project-manager

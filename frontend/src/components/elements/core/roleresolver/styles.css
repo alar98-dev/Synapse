@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Roleresolver */
+.syn-element.syn-roleresolver {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-roleresolver .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-roleresolver .syn-element__body {
+  margin-top: 6px;
+}

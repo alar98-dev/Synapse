@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Lessoncard */
+.syn-element.syn-lessoncard {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-lessoncard .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-lessoncard .syn-element__body {
+  margin-top: 6px;
+}

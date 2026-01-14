@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Lessonorderdragdrop */
+.syn-element.syn-lessonorderdragdrop {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-lessonorderdragdrop .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-lessonorderdragdrop .syn-element__body {
+  margin-top: 6px;
+}

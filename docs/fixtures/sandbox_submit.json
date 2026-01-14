@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/sandbox/submit/",
+    "headers": {
+      "Authorization": "Bearer <token>",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "code": "<string: source code>",
+      "language": "<string: python|javascript|...>"
+    }
+  },
+  "response": {
+    "status_code": "<int: 201>",
+    "body": {
+      "id": "<int>",
+      "user": "<int:user_id>",
+      "code": "<string>",
+      "language": "<string>",
+      "status": "<string: pending|running|success|failed>",
+      "container_id": "<string|null>",
+      "created_at": "<iso8601>"
+    }
+  },
+  "side_effects": {
+    "db": ["ExecutionJob created with fields above"],
+    "task_queue": ["execute_code_task.apply_async((job.id,), soft_time_limit, time_limit)"]
+  }
+}

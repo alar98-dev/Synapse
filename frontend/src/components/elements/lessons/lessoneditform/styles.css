@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Lessoneditform */
+.syn-element.syn-lessoneditform {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-lessoneditform .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-lessoneditform .syn-element__body {
+  margin-top: 6px;
+}

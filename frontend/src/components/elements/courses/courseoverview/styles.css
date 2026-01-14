@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Courseoverview */
+.syn-element.syn-courseoverview {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-courseoverview .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-courseoverview .syn-element__body {
+  margin-top: 6px;
+}

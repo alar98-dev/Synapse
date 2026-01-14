@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Synapse • Ecossistema Digital</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/views.css">
+</head>
+<body>
+    <div id="app-shell" class="app-shell">
+        <!-- O shell (topbar/sidebar) será injetado dinamicamente APENAS após autenticação -->
+        <main id="content" class="content-area"></main>
+    </div>
+
+    <div id="toast-root"></div>
+
+    <script src="/js/ui_manager.js"></script>
+    <script src="/js/fetch_service.js"></script>
+    <script src="/state.js"></script>
+    <script src="/app.js"></script>
+    <!-- Global overlay loader (hidden by default). Use AppState.showLoader()/hideLoader() -->
+    <div id="global-loader" class="global-loader hidden" aria-hidden="true">
+        <div class="global-loader-backdrop"></div>
+        <div class="global-loader-center" role="status" aria-live="polite">
+            <div class="overlay-spinner"></div>
+            <div class="overlay-message" id="global-loader-message">Carregando...</div>
+        </div>
+    </div>
+</body>
+</html>

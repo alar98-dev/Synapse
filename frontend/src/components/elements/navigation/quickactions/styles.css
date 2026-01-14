@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Quickactions */
+.syn-element.syn-quickactions {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-quickactions .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-quickactions .syn-element__body {
+  margin-top: 6px;
+}

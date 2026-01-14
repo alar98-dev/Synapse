@@ -1,0 +1,67 @@
+<div class="builder-view">
+    <header class="view-header">
+        <div class="breadcrumb-back">
+            <button class="btn icon" onclick="navigate('/studio')">⬅</button>
+            <h1 id="builder-course-title">Novo Curso</h1>
+        </div>
+        <div class="view-actions">
+            <button class="btn ghost" onclick="alert('Preview')">Olho Prever</button>
+            <button class="btn primary" id="btn-save-course">Salvar Alterações</button>
+        </div>
+    </header>
+
+    <div class="builder-layout">
+        <nav class="builder-tabs">
+            <button class="tab-btn active" data-tab="structure">🏗️ Estrutura</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Configurações</button>
+            <button class="tab-btn" data-tab="pricing">💳 Comercial</button>
+            <button class="tab-btn" data-tab="ai">🧠 IA Studio</button>
+        </nav>
+
+        <div class="tab-content" id="builder-content">
+            <!-- Structure Tab (Default) -->
+            <div id="tab-structure" class="builder-tab-pane">
+                <div class="structure-header">
+                    <h3>Módulos e Aulas</h3>
+                    <button class="btn secondary outline small" id="btn-add-module">➕ Adicionar Módulo</button>
+                </div>
+                <div id="module-list" class="module-list">
+                    <!-- Modules injected here -->
+                    <div class="empty-state">Comece adicionando o primeiro módulo.</div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="builder-tab-pane hidden">
+                <form class="settings-form">
+                    <div class="form-group">
+                        <label>Título do Curso</label>
+                        <input type="text" value="Novo Curso">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição Curta</label>
+                        <textarea placeholder="Explique o curso em uma frase..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select>
+                            <option>Tecnologia</option>
+                            <option>Design</option>
+                            <option>Negócios</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- AI Tab -->
+            <div id="tab-ai" class="builder-tab-pane hidden">
+                <div class="ai-studio-box">
+                    <h3>Synapse IA Creator</h3>
+                    <p>Descreva o tema do curso e a IA criará a estrutura completa para você.</p>
+                    <textarea id="ai-prompt" placeholder="Ex: Crie um curso de Python para iniciantes focado em ciência de dados..."></textarea>
+                    <button class="btn primary ai" id="btn-generate-ai">Gerar Estrutura com IA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

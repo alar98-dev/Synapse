@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Pageheader */
+.syn-element.syn-pageheader {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-pageheader .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-pageheader .syn-element__body {
+  margin-top: 6px;
+}

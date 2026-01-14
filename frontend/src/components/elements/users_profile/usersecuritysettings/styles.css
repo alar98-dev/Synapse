@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Usersecuritysettings */
+.syn-element.syn-usersecuritysettings {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-usersecuritysettings .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-usersecuritysettings .syn-element__body {
+  margin-top: 6px;
+}

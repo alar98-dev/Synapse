@@ -1,0 +1,10 @@
+.card.course-card{display:flex;flex-direction:column;gap:.5rem}
+.card-title{font-size:1.05rem;margin:0}
+.card-meta{color:var(--muted);font-size:.9rem}
+.card-actions{display:flex;gap:.5rem;margin-top:.5rem}
+.lesson-item{padding:.6rem;border-radius:8px;background:rgba(255,255,255,.02);margin:.4rem 0;cursor:pointer}
+.lesson-item:hover{background:rgba(255,255,255,.03)}
+.chapters{width:260px;padding:1rem}
+.player{background:#000;border-radius:8px;padding:0.5rem}
+.toolbar{margin:1rem 0}
+.empty{padding:2rem;text-align:center;color:var(--muted)}

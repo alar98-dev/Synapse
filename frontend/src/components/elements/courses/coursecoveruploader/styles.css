@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Coursecoveruploader */
+.syn-element.syn-coursecoveruploader {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-coursecoveruploader .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-coursecoveruploader .syn-element__body {
+  margin-top: 6px;
+}

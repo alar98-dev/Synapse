@@ -1,0 +1,17 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.log
+node_modules
+frontend/node_modules
+frontend/dist
+frontend/.vite
+frontend/.cache
+staticfiles
+.coverage
+test_reports
+.env
+.env*
+.git
+docker-compose.override.yml

@@ -1,0 +1,10 @@
+title,module,priority,description,assignee,labels
+"Hardening: Replace docker.sock runner","executor","High","Implement k8s-based executor or remote runner; remove Docker socket dependency; add resource limits and cleanup.",,"infra;executor;security"
+"Add Dashboard API endpoint","backend","High","Create /api/v1/users/{id}/dashboard aggregating progress, upcoming, last_submissions; include correlation_id and metrics.",,"backend;api;high"
+"Frontend: Student Dashboard MVP","frontend","High","React page: Dashboard with skeletons, progress, CTA resume; integrate /dashboard API and telemetry events.",,"frontend;ui;high"
+"Telemetry: Ingest endpoint and schemas","observability","High","Implement POST /telemetry/events, validate JSON Schema, store/forward to analytics; ensure S1a/S2/S4 coverage.",,"observability;telemetry;high"
+"Runner: result_summary parser","backend","High","Worker: parse stdout/stderr into result_summary, populate Submission.result_summary and score fields.",,"backend;worker;high"
+"Player+Editor: split-view UI","frontend","High","Implement video player with VTT sync + Monaco editor split view, WebSocket session for sandbox state.",,"frontend;ui;sandbox;high"
+"Payments: Stripe sandbox integration","payments","Medium","Implement payments app with Stripe checkout, webhook handler, invoices model and payment events.",,"payments;finance;medium"
+"CAE: sessions endpoints and prompt versioning","ai","Medium","Implement CAE sessions POST/GET/respond, store hashed inferences, add metrics session_created/session_converged.",,"ai;cognition;medium"
+"Courses: enrollment M2M & filters","courses","Medium","Add M2M enrollment, cohort members endpoint, faceted filters for course listing.",,"backend;courses;medium"

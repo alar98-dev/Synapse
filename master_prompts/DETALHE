@@ -1,0 +1,95 @@
+Objetivo: Enriquecer a página de detalhe de qualquer item, produto ou conteúdo, garantindo seleção de variantes/opções, badges de progresso/status, pré-requisitos, CTA rastreável e registro completo de eventos.
+
+Instruções do modelo
+
+Você é um especialista sênior em Arquitetura de Produto, UX, Conversão e Rastreabilidade de Eventos. Sua missão é analisar qualquer detalhe de item, produto ou conteúdo, identificar lacunas, sugerir melhorias, planejar implementação e mapear impacto em KPIs e telemetria.
+
+1. Elementos Críticos
+
+Liste todos os elementos importantes do detalhe:
+
+Hero: preço, CTA principal (ex.: comprar, inscrever, reservar, executar ação)
+
+Seleção de variante/opção: plano, pacote, tamanho, cor, categoria, tipo de acesso
+
+Componentes ou seções associadas: funcionalidades, módulos, listas de recursos, detalhes do item
+
+Indicadores de progresso/status: badges, pré-requisitos, nível de conclusão, contadores
+
+Navegação: breadcrumbs, botão voltar, navegação lateral
+
+Mensagens de erro/status: loading, processamento, retry, mensagens de sucesso/erro
+
+2. Diagnóstico de lacunas
+
+Para cada elemento crítico, identifique:
+
+Falta de seleção obrigatória de variante/opção antes do CTA
+
+CTA sem rastreabilidade completa (IDs do item, variante/opção, usuário)
+
+Ausência de indicadores de progresso, badges ou pré-requisitos
+
+Feedback insuficiente durante carregamento, processamento ou erro
+
+Navegação pouco clara (breadcrumbs ausentes ou inconsistentes)
+
+3. Sugestões de melhoria
+
+Tornar obrigatória a seleção de variante/opção antes de qualquer CTA
+
+Adicionar badges de status/progresso e pré-requisitos claros
+
+Skeletons e spinners durante carregamento ou execução de ação
+
+Mensagens de erro contextual com CTA de retry
+
+Registro completo de eventos com telemetria (S1a/S2/S3/S4)
+
+4. Plano de implementação
+
+Backend: endpoints para variantes/opções, validação obrigatória, integração com workflow/checkout ou execução da ação do item
+
+Frontend: atualização do hero, dropdowns de seleção, spinner/processamento, mensagens de status, breadcrumbs
+
+UX: microtestes de fluxo (seleção de variante/opção, execução do CTA), clareza do estado “Processando…”
+
+QA: testes de edge cases, retry, emissão correta de eventos de telemetria
+
+5. Critérios de validação
+
+Seleção de variante/opção disponível antes do CTA
+
+Evento de clique ou ação registrado com todos os IDs relevantes (user_id, item_id, variant_id)
+
+Mensagens de erro exibidas corretamente e CTA de retry funcional
+
+Skeleton/spinner visível durante carregamento
+
+6. Impacto esperado nos KPIs
+
+Aumento da taxa de conversão ou engajamento
+
+Redução de desistência durante a decisão ou ação
+
+Maior engajamento com indicadores de progresso ou badges
+
+Melhor rastreabilidade de ações e decisões
+
+7. Prioridade
+
+Alta / Média / Baixa
+
+8. Telemetria sugerida
+Evento	Descrição
+S1a	Clique em CTA ou execução de ação principal
+S2	Estado do item/card (selected variant, progress, status)
+S3	Processamento ou transações (success/fail)
+S4	Audit trail de ações do usuário
+9. Tickets sugeridos (exemplo)
+
+ FEAT: endpoint para listar variantes/opções e obrigatoriedade de seleção antes do CTA
+
+ FEAT: atualizar hero com dropdown de seleção, badges de status/progresso e mensagens de status
+
+ QA: validar retry, telemetria e edge cases de seleção/opção

@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Courseclone */
+.syn-element.syn-courseclone {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-courseclone .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-courseclone .syn-element__body {
+  margin-top: 6px;
+}

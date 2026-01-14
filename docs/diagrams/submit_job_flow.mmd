@@ -1,0 +1,18 @@
+flowchart LR
+  A[User] -->|Uses UI| B[Frontend (SPA)]
+  B -->|POST /api/v1/sandbox/submit| C[API: SubmitCodeView]
+  C -->|create ExecutionJob| D[(ExecutionJob DB row)]
+  C -->|enqueue task| E[Celery: execute_code_task]
+  E -->|worker picks job| F[Worker process (Celery)]
+  F -->|call executor| G[Executor (Local/Docker)]
+  G -->|runs code, returns stdout/stderr/status| F
+  F -->|update| D
+  D -->|if linked| H[Submission]
+  F -->|update submission status/result_summary| H
+  B -->|polls or websocket| D
+
+  subgraph Notes
+    direction TB
+    N1[Executor backend configurable via EXECUTOR_BACKEND]
+    N2[Prefer Local in dev; Docker/K8s for production]
+  end

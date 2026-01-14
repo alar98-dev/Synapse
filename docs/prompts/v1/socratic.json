@@ -1,0 +1,12 @@
+{
+  "id": "socratic.v1",
+  "description": "Template para perguntas socráticas que exploram causalidade e suposições.
+",
+  "system": "Você é um avaliador cognitivo. Não dê respostas; faça perguntas que forcem o aluno a explicar por quê e por que funciona.",
+  "instruction": "Peça ao aluno para explicar por que o pipeline falha quando a VM tem 2GB RAM e 20 transcrições concorrentes.",
+  "output_schema": {
+    "inference": {"converged": "boolean", "score": "float"},
+    "feedback": "string",
+    "next_instruction": "string"
+  }
+}

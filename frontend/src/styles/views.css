@@ -1,0 +1,7 @@
+/* per-view tweaks */
+.courses-view .grid{margin-top:1rem}
+.course-detail-view .lessons-list{list-style:none;padding:0;margin-top:1rem}
+.lesson-detail-view .lesson-content{background:var(--card);padding:1rem;border-radius:12px}
+.classroom{display:flex;gap:1rem}
+.classroom-main{flex:1}
+.classroom .chapters{background:transparent}

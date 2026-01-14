@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Assessmentinputbox */
+.syn-element.syn-assessmentinputbox {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-assessmentinputbox .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-assessmentinputbox .syn-element__body {
+  margin-top: 6px;
+}

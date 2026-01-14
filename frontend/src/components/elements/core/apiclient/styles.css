@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Apiclient */
+.syn-element.syn-apiclient {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-apiclient .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-apiclient .syn-element__body {
+  margin-top: 6px;
+}

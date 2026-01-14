@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/cognition/sessions/probe/",
+    "headers": { "Authorization": "Bearer <token>", "Content-Type": "application/json" },
+    "body": {
+      "prompt": "<string>",
+      "provider": "<string: ollama|openai|gemini>",
+      "model": "<string>",
+      "metadata": { "session_id": "<string>", "stage": "<string>" }
+    }
+  },
+  "response": {
+    "status_code": "<int: 200|500>",
+    "body": {
+      "inference": { "converged": "<bool>", "score": "<float>" },
+      "feedback": "<string|null>",
+      "next_instruction": "<string|null>",
+      "raw": "<object: provider raw response>"
+    }
+  },
+  "side_effects": {
+    "db": ["(optional) stored telemetry or session context"],
+    "external_calls": ["LLM provider API call (direct, no mocks)"]
+  }
+}

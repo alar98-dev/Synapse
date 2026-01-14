@@ -1,0 +1,4 @@
+window.initView = async function(mode) {
+    console.log("Iniciando vista: $file (Modo: " + mode + ")");
+    // Placeholder para funcionalidade futura
+};

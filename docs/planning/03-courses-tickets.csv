@@ -1,0 +1,9 @@
+key,title,body,labels,assignee
+COURSES-API,ENRICH: Implementar endpoints CRUD para /api/v1/courses/ ,"Adicionar GET list/detail, POST, PUT, DELETE e publish endpoint. Incluir validações, permissões e audit trail S4.",backend,high,
+COURSES-FEAT-MODAL,FEAT: Modal de criação/edição de curso,"Criar Create/Edit modal com validações, image upload, multi-step opcional, skeletons e toasts.",frontend,high,
+COURSES-PAGINATION,ENH: Paginação + persistência de filtros,"Implementar paginação e persistência de filtros em localStorage; suporte a search/tag/sort.",frontend,medium,
+COURSES-PUBLISH,FEAT: Publish workflow endpoint,"Criar POST /api/v1/courses/<id>/publish/ que altera state e emite S2; validação de permissions.",backend,high,
+COURSES-AUDIT,FEAT: Audit trail S4 para cursos,"Implementar audit log append-only e endpoint de listagem por course_id.",backend,high,
+COURSES-UX,UX: Microtests com instrutores/admins,"Executar 3 microtests por persona para validar criação/edição/clareza de progress badges.",ux,medium,
+COURSES-QA,E2E: Testes CRUD e permissões,"Escrever E2E para create/edit/publish/delete, 403 flows e performance (modal <=300ms)",qa,high,COURSES-FE-CARDS,FEAT: CourseCard com badges e progresso,"Implementar CourseCard com title, progress %, students_count e coorte badges; atualiza via websocket/optimistic UI.",frontend,medium,
+COURSES-TELEMETRY,FEAT: Telemetria S1a/S2/S4,"Implementar hooks para emitir eventos S1a (create/edit/delete), S2 (state change) e integração com S4 audit logs.",infra;telemetry,high,

@@ -1,0 +1,4 @@
+node_modules
+dist
+public
+frontend/src/components/elements/**/index.html

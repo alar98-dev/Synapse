@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Courseaccessrules */
+.syn-element.syn-courseaccessrules {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-courseaccessrules .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-courseaccessrules .syn-element__body {
+  margin-top: 6px;
+}

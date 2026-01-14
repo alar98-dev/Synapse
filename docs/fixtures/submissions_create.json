@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/submissions/submissions/",
+    "headers": { "Authorization": "Bearer <token>", "Content-Type": "application/json" },
+    "body": {
+      "problem": "<int: problem_id>",
+      "code": "<string: student code>",
+      "extra": "<optional fields>"
+    }
+  },
+  "response": {
+    "status_code": "<int: 201>",
+    "body": {
+      "id": "<int>",
+      "user": "<int>",
+      "problem": "<int>",
+      "job": "<int: execution_job_id>",
+      "status": "<string: pending>",
+      "result_summary": "<string|null>",
+      "created_at": "<iso8601>"
+    }
+  },
+  "side_effects": {
+    "db": ["Submission created; ExecutionJob created and linked"],
+    "task_queue": ["execute_code_task.apply_async((job.id,), ...)"]
+  }
+}

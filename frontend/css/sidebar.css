@@ -1,0 +1,77 @@
+.sidebar {
+    width: 260px;
+    height: 100%;
+    background: var(--bg-main);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    transition: width 0.3s var(--transition);
+}
+
+.sidebar .nav-group {
+    margin-bottom: 2rem;
+}
+
+.sidebar label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+    margin-bottom: 0.25rem;
+}
+
+.nav-link i {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    background: var(--secondary);
+    color: var(--text);
+}
+
+.nav-link:hover i {
+    color: var(--primary);
+}
+
+.nav-link.active {
+    background: var(--primary-glow);
+    color: var(--primary);
+    border: 1px solid rgba(162, 128, 255, 0.1);
+}
+
+.nav-link.active i {
+    color: var(--primary);
+}
+
+.sidebar-footer {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Sidebar Sections specifically */
+#sidebar nav { display: flex; flex-direction: column; }

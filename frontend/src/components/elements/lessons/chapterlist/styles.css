@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Chapterlist */
+.syn-element.syn-chapterlist {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-chapterlist .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-chapterlist .syn-element__body {
+  margin-top: 6px;
+}

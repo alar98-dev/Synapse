@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Classroomvideoarea */
+.syn-element.syn-classroomvideoarea {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-classroomvideoarea .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-classroomvideoarea .syn-element__body {
+  margin-top: 6px;
+}

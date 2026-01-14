@@ -1,0 +1,16 @@
+
+@import '../../_design.css';
+
+/* Component: Supportmaterialcard */
+.syn-element.syn-supportmaterialcard {
+  display: block;
+  gap: 8px;
+}
+
+.syn-element.syn-supportmaterialcard .syn-element__title {
+  font-size: 15px;
+}
+
+.syn-element.syn-supportmaterialcard .syn-element__body {
+  margin-top: 6px;
+}

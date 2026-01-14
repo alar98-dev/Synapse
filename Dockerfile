@@ -1,3 +1,16 @@
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy package metadata first to leverage Docker cache
+COPY frontend/package*.json ./
+
+RUN npm ci
+
+# Copy frontend sources and build
+COPY frontend ./
+RUN npm run build
+
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -15,7 +28,9 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 ARG BUILD_TESTS=0
 RUN if [ "$BUILD_TESTS" = "1" ]; then pip install --no-cache-dir -r dev-requirements.txt; fi
 
+# Copy repo contents and layer the built frontend dist
 COPY . /app/
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 ENV DJANGO_SETTINGS_MODULE=synapse_project.settings
 
