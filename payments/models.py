@@ -46,3 +46,25 @@ class Subscription(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.plan.name}"
+
+
+class PaymentLog(models.Model):
+    LEVEL_CHOICES = [
+        ('info', 'Info'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+        ('critical', 'Critical'),
+    ]
+
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name='logs', null=True, blank=True)
+    correlation_id = models.CharField(max_length=255)
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='info')
+    message = models.TextField()
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"PaymentLog {self.id} - {self.level}: {self.message[:50]}"

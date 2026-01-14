@@ -4,7 +4,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.throttling import ScopedRateThrottle
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from .models import Payment, Plan, Subscription
+from .models import Payment, Plan, Subscription, PaymentLog
 from .serializers import PaymentSerializer, PlanSerializer, SubscriptionSerializer
 import stripe
 import logging
@@ -158,15 +158,36 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
+    correlation_id = request.META.get('HTTP_X_CORRELATION_ID', 'unknown')
 
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
     except ValueError:
+        PaymentLog.objects.create(
+            correlation_id=correlation_id,
+            level='error',
+            message='Invalid webhook payload',
+            metadata={'sig_header': sig_header, 'endpoint_secret': bool(endpoint_secret)}
+        )
         return Response(status=status.HTTP_400_BAD_REQUEST)
     except stripe.error.SignatureVerificationError:
+        PaymentLog.objects.create(
+            correlation_id=correlation_id,
+            level='error',
+            message='Invalid webhook signature',
+            metadata={'sig_header': sig_header}
+        )
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    # Log webhook received
+    PaymentLog.objects.create(
+        correlation_id=correlation_id,
+        level='info',
+        message=f'Webhook received: {event["type"]}',
+        metadata={'event_type': event['type'], 'event_id': event['id']}
+    )
 
     # Handle the event
     if event['type'] == 'checkout.session.completed':
@@ -202,6 +223,14 @@ def stripe_webhook(request):
             'decision': decision.decision.value,
             'reason': decision.message,
         })
+        # Log filament decision
+        PaymentLog.objects.create(
+            payment=payment_obj,
+            correlation_id=correlation_id,
+            level='warning' if decision.decision == FilamentDecision.BLOQUEAR else 'info',
+            message=f'Filament decision for webhook: {decision.decision.value}',
+            metadata={'decision': decision.decision.value, 'reason': decision.message, 'external_id': session.get('id')}
+        )
         if decision.decision == FilamentDecision.BLOQUEAR:
             # mark payment blocked if we could find it
             if payment_obj:
@@ -209,14 +238,34 @@ def stripe_webhook(request):
                 payment_obj.save()
             payment_filament.record_learning(ev, decision.message, FilamentDecision.BLOQUEAR, state=EventState.S4)
             telemetry.emit('Payment.Webhook.S4.blocked', {'external_id': session.get('id'), 'reason': decision.message})
+            PaymentLog.objects.create(
+                payment=payment_obj,
+                correlation_id=correlation_id,
+                level='critical',
+                message='Payment blocked by filament',
+                metadata={'external_id': session.get('id'), 'reason': decision.message}
+            )
             return Response(status=status.HTTP_200_OK)
         # if AJUSTAR we let normal processing continue but log
         if decision.decision == FilamentDecision.AJUSTAR:
             logger.info('Filament suggested adjustment for webhook event: %s', decision.message)
+            PaymentLog.objects.create(
+                payment=payment_obj,
+                correlation_id=correlation_id,
+                level='warning',
+                message=f'Filament adjustment suggested: {decision.message}',
+                metadata={'external_id': session.get('id'), 'reason': decision.message}
+            )
 
         handle_checkout_session(session)
     elif event['type'] == 'invoice.paid':
         invoice = event['data']['object']
+        PaymentLog.objects.create(
+            correlation_id=correlation_id,
+            level='info',
+            message=f'Invoice paid webhook received: {invoice.get("id")}',
+            metadata={'invoice_id': invoice.get('id'), 'customer_id': invoice.get('customer'), 'amount': invoice.get('amount_paid')}
+        )
         handle_invoice_paid(invoice)
 
     return Response(status=status.HTTP_200_OK)
@@ -225,6 +274,7 @@ def stripe_webhook(request):
 def handle_checkout_session(session):
     external_id = session.get('id')
     client_reference_id = session.get('client_reference_id')
+    correlation_id = 'webhook-' + external_id  # Generate correlation_id for webhook processing
     
     try:
         payment = Payment.objects.get(id=client_reference_id)
@@ -232,12 +282,27 @@ def handle_checkout_session(session):
         payment.external_id = external_id
         payment.save()
 
+        PaymentLog.objects.create(
+            payment=payment,
+            correlation_id=correlation_id,
+            level='info',
+            message='Payment completed successfully',
+            metadata={'external_id': external_id, 'amount': payment.amount, 'user': payment.user.username}
+        )
+
         # If it's a plan subscription, create the subscription
         if payment.plan:
             Subscription.objects.get_or_create(
                 user=payment.user,
                 plan=payment.plan,
                 defaults={'is_active': True}
+            )
+            PaymentLog.objects.create(
+                payment=payment,
+                correlation_id=correlation_id,
+                level='info',
+                message=f'Subscription created for plan {payment.plan.name}',
+                metadata={'plan': payment.plan.name, 'user': payment.user.username}
             )
         
         # If it's a course purchase, enroll the user
@@ -249,18 +314,38 @@ def handle_checkout_session(session):
                 defaults={'is_active': True}
             )
             logger.info(f"User {payment.user.username} enrolled in course {payment.course.title} after payment")
+            PaymentLog.objects.create(
+                payment=payment,
+                correlation_id=correlation_id,
+                level='info',
+                message=f'User enrolled in course {payment.course.title}',
+                metadata={'course': payment.course.title, 'user': payment.user.username}
+            )
 
     except Payment.DoesNotExist:
         logger.error(f"Payment {client_reference_id} not found during webhook")
+        PaymentLog.objects.create(
+            correlation_id=correlation_id,
+            level='error',
+            message=f'Payment {client_reference_id} not found during webhook processing',
+            metadata={'external_id': external_id, 'client_reference_id': client_reference_id}
+        )
 
 
 def handle_invoice_paid(invoice):
     customer_id = invoice.get('customer')
     subscription_id = invoice.get('subscription')
+    correlation_id = 'invoice-' + invoice.get('id', 'unknown')
     
     # In a real app, we'd lookup user by stripe customer_id
     # For now, let's assume we can map them
     logger.info(f"Subscription invoice paid: {subscription_id} for customer {customer_id}")
+    PaymentLog.objects.create(
+        correlation_id=correlation_id,
+        level='info',
+        message=f'Subscription invoice paid for customer {customer_id}',
+        metadata={'customer_id': customer_id, 'subscription_id': subscription_id, 'invoice_id': invoice.get('id'), 'amount': invoice.get('amount_paid')}
+    )
     # Update Subscription expiry or active status if needed
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
