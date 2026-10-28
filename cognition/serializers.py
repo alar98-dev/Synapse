@@ -11,6 +11,29 @@ class CognitiveReportSerializer(serializers.ModelSerializer):
         model = CognitiveReport
         fields = ['score', 'summary', 'dimensions', 'created_at']
 
+class CognitiveProfileSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+    convergence_rate = serializers.SerializerMethodField()
+    total_sessions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CognitiveProfile
+        fields = [
+            'id', 'username', 'conceptual_understanding',
+            'causal_reasoning', 'transfer_ability', 'error_detection',
+            'convergence_rate', 'total_sessions', 'last_updated'
+        ]
+
+    def get_convergence_rate(self, obj):
+        total = obj.user.assessment_sessions.count()
+        if total == 0:
+            return 0.0
+        converged = obj.user.assessment_sessions.filter(status='converged').count()
+        return round((converged / total) * 100, 1)
+
+    def get_total_sessions(self, obj):
+        return obj.user.assessment_sessions.count()
+
 class AssessmentSessionSerializer(serializers.ModelSerializer):
     turns = EvaluationTurnSerializer(many=True, read_only=True)
     report = CognitiveReportSerializer(read_only=True)

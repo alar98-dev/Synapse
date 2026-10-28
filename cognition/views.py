@@ -1,10 +1,11 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
-from .models import AssessmentSession
-from .serializers import AssessmentSessionSerializer
+from .models import AssessmentSession, CognitiveProfile
+from .serializers import AssessmentSessionSerializer, CognitiveProfileSerializer
 from .engine import CognitiveOrchestrator
+from .services.profiling_service import CognitiveProfilingService
 from courses.permissions import IsStaffOrTeacher
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
@@ -99,3 +100,18 @@ class AssessmentViewSet(viewsets.ModelViewSet):
             },
             "lesson_breakdown": lesson_stats
         })
+
+
+class CognitiveProfileView(views.APIView):
+    """Retrieves or recalculates the multidimensional cognitive profile for the authenticated learner."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile = CognitiveProfilingService.get_profile(request.user)
+        serializer = CognitiveProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        profile = CognitiveProfilingService.recalculate_profile(request.user)
+        serializer = CognitiveProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)

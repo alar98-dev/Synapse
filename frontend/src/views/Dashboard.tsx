@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import authClient, { UserStats } from '../api/authClient'
+import authClient, { UserStats, CognitiveProfileData } from '../api/authClient'
 
 interface SessionSummary {
   id: number
@@ -21,19 +21,21 @@ export default function Dashboard({ token }: DashboardProps) {
     total_materials: 0,
   })
   const [userStats, setUserStats] = useState<UserStats | null>(null)
+  const [profile, setProfile] = useState<CognitiveProfileData | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let isMounted = true
     setLoading(true)
 
-    // Fetch stats, user gamification metrics and sessions in parallel
+    // Fetch stats, user gamification metrics, sessions and live cognitive profile in parallel
     Promise.allSettled([
       authClient.fetchSessions(),
       authClient.fetchStats(),
       authClient.fetchUserStats(),
+      authClient.fetchCognitiveProfile(),
     ])
-      .then(([sessionsRes, statsRes, userStatsRes]) => {
+      .then(([sessionsRes, statsRes, userStatsRes, profileRes]) => {
         if (!isMounted) return
 
         if (sessionsRes.status === 'fulfilled' && sessionsRes.value) {
@@ -44,6 +46,9 @@ export default function Dashboard({ token }: DashboardProps) {
         }
         if (userStatsRes.status === 'fulfilled' && userStatsRes.value) {
           setUserStats(userStatsRes.value)
+        }
+        if (profileRes.status === 'fulfilled' && profileRes.value) {
+          setProfile(profileRes.value)
         }
       })
       .finally(() => {
@@ -188,39 +193,66 @@ export default function Dashboard({ token }: DashboardProps) {
         {/* Sidebar Activity & Cognitive Profile */}
         <section className="rounded-3xl bg-slate-900/40 p-8 border border-slate-800 flex flex-col justify-between shadow-xl space-y-6">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <i className="bx bx-radar text-xl text-cyan-400"></i>
-              <h3 className="text-lg font-bold text-white">Perfil Cognitivo (IA)</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <i className="bx bx-radar text-xl text-cyan-400"></i>
+                <h3 className="text-lg font-bold text-white">Perfil Cognitivo (IA)</h3>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                {profile?.convergence_rate ? `${profile.convergence_rate}% Conv.` : 'Ativo'}
+              </span>
             </div>
             
             <div className="space-y-3.5 mb-6">
               <div>
                 <div className="flex justify-between text-[11px] font-bold mb-1">
                   <span className="text-slate-400">Compreensão Conceitual</span>
-                  <span className="text-cyan-400">88%</span>
+                  <span className="text-cyan-400">{profile?.conceptual_understanding ?? 75}%</span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-cyan-400 rounded-full" style={{ width: '88%' }}></div>
+                  <div
+                    className="h-full bg-cyan-400 rounded-full transition-all duration-700"
+                    style={{ width: `${profile?.conceptual_understanding ?? 75}%` }}
+                  ></div>
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-[11px] font-bold mb-1">
                   <span className="text-slate-400">Raciocínio Causal & Lógica</span>
-                  <span className="text-indigo-400">82%</span>
+                  <span className="text-indigo-400">{profile?.causal_reasoning ?? 70}%</span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-indigo-400 rounded-full" style={{ width: '82%' }}></div>
+                  <div
+                    className="h-full bg-indigo-400 rounded-full transition-all duration-700"
+                    style={{ width: `${profile?.causal_reasoning ?? 70}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-[11px] font-bold mb-1">
+                  <span className="text-slate-400">Transferência de Domínio</span>
+                  <span className="text-purple-400">{profile?.transfer_ability ?? 65}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-purple-400 rounded-full transition-all duration-700"
+                    style={{ width: `${profile?.transfer_ability ?? 65}%` }}
+                  ></div>
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-[11px] font-bold mb-1">
                   <span className="text-slate-400">Detecção de Anomalias / Debug</span>
-                  <span className="text-emerald-400">92%</span>
+                  <span className="text-emerald-400">{profile?.error_detection ?? 80}%</span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-400 rounded-full" style={{ width: '92%' }}></div>
+                  <div
+                    className="h-full bg-emerald-400 rounded-full transition-all duration-700"
+                    style={{ width: `${profile?.error_detection ?? 80}%` }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -230,7 +262,7 @@ export default function Dashboard({ token }: DashboardProps) {
               <ActivityItem text="Catálogo expandido com 6 especializações" time="Recente" />
               <ActivityItem text="Suporte ao Sandbox com streaming lock-free" time="Hoje" />
               <ActivityItem text="Tutor Socrático Polaris 127.0.0.1 ativo" time="Ativo" />
-              <ActivityItem text="Certificação criptográfica com UUID único" time="Novo" />
+              <ActivityItem text="Perfil cognitivo integrado com dados reais" time="Novo" />
             </div>
           </div>
 

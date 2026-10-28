@@ -45,6 +45,18 @@ export interface UserStats {
   successful_submissions_count: number
 }
 
+export interface CognitiveProfileData {
+  id: number
+  username: string
+  conceptual_understanding: number
+  causal_reasoning: number
+  transfer_ability: number
+  error_detection: number
+  convergence_rate: number
+  total_sessions: number
+  last_updated: string
+}
+
 const authClient = {
   login: async (username: string, password: string): Promise<TokenResponse> => {
     const response = await client.post('/auth/token/', { username, password })
@@ -71,6 +83,10 @@ const authClient = {
   },
   fetchUserStats: async (): Promise<UserStats> => {
     const response = await client.get('/auth/me/stats/')
+    return response.data
+  },
+  fetchCognitiveProfile: async (): Promise<CognitiveProfileData> => {
+    const response = await client.get('/cognition/profile/')
     return response.data
   },
   fetchCourses: async () => {
