@@ -44,7 +44,11 @@
 - [x] Criar serviço de RBAC (`RBACService`) e comando `manage.py setup_rbac` (grupos `Administrators`, `Instructors`, `Students`, `Auditors`).
 - [x] Expor e cobrir com testes o endpoint `/api/v1/auth/me/stats/` retornando streaks, turmas, grupos e métricas reais de aprendizado.
 
-### Fase 2: Interface Web & Consumo da API
+### Fase 2: Interface Web, Broadcast Reativo & Consumo da API
+- [x] Padronizar o protocolo de eventos WebSocket no `sandbox/consumers.py` (`stdout`, `stderr`, `result`).
+- [x] Criar hook reativo `useExecutionStream` com reconexão exponencial e fallback de polling REST em `frontend/src/hooks/useExecutionStream.ts`.
+- [x] Refatorar `AICenterView.tsx` desacoplando a conexão WebSocket para o hook reutilizável.
+- [x] Corrigir import relativo em `CohortModal.tsx` e compilar bundle de produção com Vite (`dist/`).
 - [ ] Revisar as rotas da SPA no `frontend/` para listar os 6 cursos populados no banco.
 - [ ] Validar o fluxo visual de inscrição gratuita vs checkout de cursos pagos.
 
