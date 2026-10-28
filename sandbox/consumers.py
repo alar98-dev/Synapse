@@ -99,9 +99,15 @@ class ExecutionConsumer(AsyncWebsocketConsumer):
         }))
 
     async def execution_result(self, event):
+        exit_code = event.get('exit_code', 0)
+        status = 'success' if exit_code == 0 else 'failed'
+        duration = event.get('duration', 0.0)
         await self.send(text_data=json.dumps({
-            'type': 'system',
-            'content': f"\nExecution finished with exit code {event['exit_code']} in {event['duration']:.2f}s."
+            'type': 'result',
+            'status': status,
+            'exit_code': exit_code,
+            'duration': duration,
+            'content': f"\nExecution finished with exit code {exit_code} in {duration:.2f}s."
         }))
 
     async def send_system_message(self, message):

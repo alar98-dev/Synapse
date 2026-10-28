@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import coursesApi from '../../api/courses'
+import coursesApi from '../api/courses'
 
 interface CohortModalProps {
   courseId: number

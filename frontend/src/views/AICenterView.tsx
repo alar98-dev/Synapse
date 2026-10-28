@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import CodeEditor from '../components/CodeEditor'
-
-type ConnectionStatus = 'CONNECTED' | 'RECONNECTING' | 'FAILED' | 'STOPPED'
+import { useExecutionStream } from '../hooks/useExecutionStream'
 
 export default function AICenterView() {
   const [session] = useState(() => Math.random().toString(36).substring(7))
-  const [logs, setLogs] = useState<{ type: string; content: string }[]>([])
-  const [status, setStatus] = useState<ConnectionStatus>('RECONNECTING')
   const [input, setInput] = useState(() => localStorage.getItem(`synapse_draft_ai_${session}`) || '')
   const [language, setLanguage] = useState('python')
   const [model, setModel] = useState('openai')
-  
-  const ws = useRef<WebSocket | null>(null)
+
   const scrollRef = useRef<HTMLDivElement>(null)
-  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null)
-  const retryCount = useRef(0)
+
+  const { status, logs, execute } = useExecutionStream({
+    sessionId: session,
+  })
 
   // Persist draft on change
   useEffect(() => {
@@ -29,63 +27,6 @@ export default function AICenterView() {
     }
   }, [])
 
-  const connect = useCallback(() => {
-    if (ws.current?.readyState === WebSocket.OPEN) return
-
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const socket = new WebSocket(`${protocol}//${host}/ws/execute/${session}/`)
-
-    setStatus('RECONNECTING')
-
-    socket.onopen = () => {
-      console.log('[SRE]: Stream link established.')
-      setStatus('CONNECTED')
-      retryCount.current = 0
-      setLogs(prev => [...prev, { type: 'system', content: `[INFO]: Conectado ao Terminal Seguro (Session: ${session})\n` }])
-    }
-
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        setLogs((prev) => [...prev, { type: data.type, content: data.content }])
-      } catch (e) {
-        console.error('[SRE]: Malformed packet ignored.', e)
-      }
-    }
-
-    socket.onclose = (event) => {
-      ws.current = null
-      if (retryCount.current < 5) {
-        const delay = Math.pow(2, retryCount.current) * 1000
-        setStatus('RECONNECTING')
-        setLogs(prev => [...prev, { type: 'stderr', content: `[ERR_WS_DROPPED]: Link perdido. Tentativa ${retryCount.current + 1} em ${delay/1000}s...\n` }])
-        
-        reconnectTimeout.current = setTimeout(() => {
-          retryCount.current++
-          connect()
-        }, delay)
-      } else {
-        setStatus('FAILED')
-        setLogs(prev => [...prev, { type: 'stderr', content: '[ERR_FATAL]: Cota de reconexão excedida. Verifique sua rede.\n' }])
-      }
-    }
-
-    socket.onerror = () => {
-      setStatus('FAILED')
-    }
-
-    ws.current = socket
-  }, [session])
-
-  useEffect(() => {
-    connect()
-    return () => {
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current)
-      if (ws.current) ws.current.close()
-    }
-  }, [connect])
-
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -93,23 +34,22 @@ export default function AICenterView() {
   }, [logs])
 
   const handleExecute = () => {
-    if (!ws.current || ws.current.readyState !== WebSocket.OPEN || !input.trim()) return
-
-    setLogs((prev) => [...prev, { type: 'system', content: `[EXEC]: Running ${language} code...\n` }])
-    
-    ws.current.send(JSON.stringify({
-      action: 'execute',
-      code: input,
-      language: language
-    }))
+    if (!input.trim()) return
+    execute(input, language)
   }
 
   const getStatusConfig = () => {
-    switch(status) {
-      case 'CONNECTED': return { color: 'bg-emerald-500', text: 'Link Estável', glow: 'shadow-[0_0_10px_#10b981]' }
-      case 'RECONNECTING': return { color: 'bg-amber-500', text: 'Recuperando Link', glow: 'shadow-[0_0_10px_#f59e0b]' }
-      case 'FAILED': return { color: 'bg-rose-500', text: 'Falha Crítica', glow: 'shadow-[0_0_10px_#f43f5e]' }
-      default: return { color: 'bg-slate-500', text: 'Inativo', glow: '' }
+    switch (status) {
+      case 'CONNECTED':
+        return { color: 'bg-emerald-500', text: 'Link Estável', glow: 'shadow-[0_0_10px_#10b981]' }
+      case 'RECONNECTING':
+        return { color: 'bg-amber-500', text: 'Recuperando Link', glow: 'shadow-[0_0_10px_#f59e0b]' }
+      case 'POLLING_FALLBACK':
+        return { color: 'bg-blue-500', text: 'Polling HTTP (Contingência)', glow: 'shadow-[0_0_10px_#3b82f6]' }
+      case 'FAILED':
+        return { color: 'bg-rose-500', text: 'Falha Crítica', glow: 'shadow-[0_0_10px_#f43f5e]' }
+      default:
+        return { color: 'bg-slate-500', text: 'Inativo', glow: '' }
     }
   }
 
