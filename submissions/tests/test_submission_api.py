@@ -17,19 +17,23 @@ class SubmissionAPITest(TestCase):
         self.lesson = Lesson.objects.create(module=self.module, title='Test Lesson')
         self.problem = Problem.objects.create(title='Test Problem', owner=self.user, lesson=self.lesson, test_template='{student_code}\nprint("Tests passed")')
 
-    def test_get_submissions_requires_lesson_id(self):
-        resp = self.client.get('/api/lessons/456/submissions/')
-        assert resp.status_code in (200, 204)  # depending on implementation
+    def test_get_submissions_requires_authentication(self):
+        resp = self.client.get('/api/v1/submissions/')
+        assert resp.status_code == 401
 
     def test_create_submission_requires_payload(self):
-        resp = self.client.post('/api/submissions/', data=json.dumps({}), content_type='application/json')
-        assert resp.status_code in (400, 422)
+        self.client.login(username='testuser', password='pass')
+        resp = self.client.post('/api/v1/submissions/', data=json.dumps({}), content_type='application/json')
+        assert resp.status_code == 400
 
     def test_create_submission_returns_submission_id(self):
-        payload = { 'lesson_id': 'lesson-456', 'user_id': 'uuid-user-123', 'code': 'print("ok")' }
-        resp = self.client.post('/api/submissions/', data=json.dumps(payload), content_type='application/json')
-        # Implementation dependent: either 201 with body or 202
+        self.client.login(username='testuser', password='pass')
+        from courses.models import Enrollment
+        Enrollment.objects.create(user=self.user, course=self.course, is_active=True)
+        payload = { 'problem': self.problem.id, 'code': 'print("ok")' }
+        resp = self.client.post('/api/v1/submissions/', data=json.dumps(payload), content_type='application/json')
         assert resp.status_code in (201, 202)
+        assert 'id' in resp.json()
 
     def test_submission_with_correlation_id_persists_logs(self):
         """Integration test: submit via API, check submission created with correlation_id."""

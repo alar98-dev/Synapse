@@ -4,6 +4,7 @@ from payments.models import Payment, PaymentLog, Plan
 from payments.views import stripe_webhook
 from courses.models import Course
 import json
+import stripe
 from unittest.mock import patch
 
 User = get_user_model()
@@ -32,8 +33,9 @@ class WebhookLoggingTestCase(TestCase):
             HTTP_STRIPE_SIGNATURE='test_sig'
         )
 
-        response = stripe_webhook(request)
-        self.assertEqual(response.status_code, 400)
+        with patch('stripe.Webhook.construct_event', side_effect=ValueError('Invalid payload')):
+            response = stripe_webhook(request)
+            self.assertEqual(response.status_code, 400)
 
         # Check error log was created
         error_log = PaymentLog.objects.filter(
@@ -53,8 +55,8 @@ class WebhookLoggingTestCase(TestCase):
             HTTP_STRIPE_SIGNATURE='invalid_sig'
         )
 
-        # Mock stripe to raise ValueError for invalid signature
-        with patch('stripe.Webhook.construct_event', side_effect=ValueError('Invalid signature')):
+        # Mock stripe to raise SignatureVerificationError for invalid signature
+        with patch('stripe.Webhook.construct_event', side_effect=stripe.error.SignatureVerificationError('Invalid signature', 'invalid_sig')):
             response = stripe_webhook(request)
             self.assertEqual(response.status_code, 400)
 

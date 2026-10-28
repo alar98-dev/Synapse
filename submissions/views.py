@@ -58,7 +58,8 @@ class SubmissionViewSet(viewsets.ModelViewSet):
         hard = soft + 5
         execute_code_task.apply_async((job.id,), soft_time_limit=soft, time_limit=hard)
 
-        submission = serializer.save(user=user, job=job, status=Submission.STATUS_PENDING)
+        correlation_id = self.request.META.get('HTTP_X_CORRELATION_ID') or getattr(self.request, 'correlation_id', None)
+        submission = serializer.save(user=user, job=job, status=Submission.STATUS_PENDING, correlation_id=correlation_id)
         return submission
 
     @action(detail=True, methods=['GET'])

@@ -11,10 +11,11 @@ class ProblemSerializer(serializers.ModelSerializer):
 
 class SubmissionSerializer(serializers.ModelSerializer):
     job = ExecutionJobSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     user_display = serializers.CharField(source='user.username', read_only=True)
     problem_title = serializers.CharField(source='problem.title', read_only=True)
 
     class Meta:
         model = Submission
         fields = ['id', 'user', 'user_display', 'problem', 'problem_title', 'code', 'status', 'result_summary', 'job', 'created_at', 'updated_at']
-        read_only_fields = ['status', 'result_summary', 'job', 'created_at', 'updated_at']
+        read_only_fields = ['user', 'status', 'result_summary', 'job', 'created_at', 'updated_at']
