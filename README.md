@@ -1,222 +1,134 @@
-# Synapse - AI Training Platform
+# Synapse — Plataforma Educacional SaaS
 
-Plataforma de ensino prático e síncrono com suporte a cohorts, ambientes de código integrados (sandbox) e avaliação automatizada de projetos.
+Plataforma de ensino prático e contínuo com arquitetura orientada a **Domain-Driven Design (DDD)**, **SOLID** e **ORM**, equipada com avaliação socrática adaptativa, sandbox de código com streaming WebSocket e governança de risco com telemetria auditável.
 
-## 📋 Status Atual (MVP)
+---
 
-- ✅ **Backend:** Django + DRF com apps `users`, `courses`, `sandbox`, `submissions`
-- ✅ **Autenticação:** JWT via `djangorestframework-simplejwt`
-- ✅ **Execução:** Docker-based code execution com Celery + Redis
-- ✅ **API Docs:** OpenAPI/Swagger via `drf-spectacular`
-- ✅ **CI:** GitHub Actions pipeline básico
-- 🔨 **Próximas:** Frontend, Payments, IA Agent, Kubernetes
+## 📋 Arquitetura e Bounded Contexts
 
-Veja `docs/missing_implementation.md` para detalhes completos do que falta implementar.
+```mermaid
+flowchart TD
+    subgraph ClientLayer ["Camada de Apresentação (Frontend)"]
+        SPA["React SPA (TypeScript + Vite)"]
+        Hook["Hook useExecutionStream"]
+    end
 
-## 🚀 Quick Start (Development)
+    subgraph APILayer ["Camada de API (Django REST Framework & ASGI)"]
+        REST["REST API Endpoints (/api/v1/*)"]
+        WS["Django Channels (ws/execute/:session_id/)"]
+    end
+
+    subgraph DomainLayer ["Camada de Domínio & Aplicação (DDD / SOLID)"]
+        EnrollmentSvc["EnrollmentService (Governança & Vagas)"]
+        LeaderboardSvc["CohortLeaderboardService (Classificação)"]
+        ProgressSvc["ProgressService (Cálculo de Streaks)"]
+        CognitiveOrch["CognitiveOrchestrator (Avaliação Socrática)"]
+        PolarisCli["PolarisClient (Síntese de Scaffolds :8080)"]
+    end
+
+    subgraph DataLayer ["Camada de Persistência & Infraestrutura"]
+        PG[("PostgreSQL 17 (synapse_db + pgvector)")]
+        Redis[("Redis 7 (Channel Layer & Celery Broker)")]
+        CeleryWorker["Celery Sandbox Executor"]
+    end
+
+    SPA --> REST
+    Hook --> WS
+    REST --> DomainLayer
+    WS --> CeleryWorker
+    DomainLayer --> PG
+    DomainLayer --> Redis
+    CeleryWorker --> Redis
+    CeleryWorker --> PG
+```
+
+### Módulos Principais
+
+| Módulo / App | Responsabilidade de Domínio |
+| :--- | :--- |
+| **`courses`** | Catálogo de cursos, módulos, lições e turmas. Serviços: [`EnrollmentService`](file:///services/synapse/courses/services/enrollment_service.py), [`CohortLeaderboardService`](file:///services/synapse/courses/services/leaderboard_service.py), [`ProgressService`](file:///services/synapse/courses/services/progress_service.py) e [`PolarisClient`](file:///services/synapse/courses/services/polaris_client.py). |
+| **`submissions`** | Modelagem de problemas práticos (`Problem`) e entregas de código (`Submission`) com `user` protegido contra IDOR e persistência de `correlation_id`. |
+| **`cognition`** | Motor de avaliação socrática (`CognitiveOrchestrator`), sondagem de raciocínio causal, detecção de frustração e relatórios cognitivos (`CognitiveReport`). |
+| **`users`** | Autenticação JWT, governança RBAC padrão (`setup_rbac`) e endpoint de métricas de estudo em tempo real (`/api/v1/auth/me/stats/`). |
+| **`payments`** | Webhooks Stripe para checkout e planos com registro auditável e imutável em `PaymentLog`. |
+| **`sandbox`** | Execução isolada de código do estudante e streaming bidirecional via Django Channels (`ExecutionConsumer`). |
+| **`frontend`** | Interface SPA em React 18 (TypeScript, Tailwind, Vite), integrando o hook reativo [`useExecutionStream`](file:///services/synapse/frontend/src/hooks/useExecutionStream.ts) com reconexão automática e fallback para polling REST. |
+
+---
+
+## 🚀 Início Rápido (Ambiente Local)
 
 ### Pré-requisitos
-- Docker & Docker Compose
-- Python 3.11+ (local dev, opcional)
+- Python 3.11+ (ou 3.13 no Debian WSL2)
+- PostgreSQL 17 local (`synapse_db` com `pgvector`)
+- Redis Server local (`127.0.0.1:6379`)
+- Node.js 20+
 
-### Passos
+### 1. Configuração do Ambiente Virtual Python
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt -r dev-requirements.txt
+```
+
+### 2. Configuração de Variáveis de Ambiente (`.env`)
+```ini
+DEBUG=True
+SECRET_KEY=synapse-development-key-2026
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+POSTGRES_DB=synapse_db
+POSTGRES_USER=synapse
+POSTGRES_PASSWORD=synapse_pass
+POSTGRES_HOST=127.0.0.1
+POSTGRES_PORT=5432
+
+REDIS_URL=redis://127.0.0.1:6379/0
+LLM_PROVIDER=mock
+```
+
+### 3. Migrações e Povoamento Inicial (Grade Flagship)
+```bash
+# Aplicar migrações estruturais
+python manage.py migrate
+
+# Provisionar grupos canônicos RBAC (Administrators, Instructors, Students, Auditors)
+python manage.py setup_rbac
+
+# Popular o banco com os 6 cursos iniciais e desafios práticos de Sandbox
+python scripts/seed_data.py
+```
+
+### 4. Compilação do Frontend
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+---
+
+## 🧪 Suíte de Testes Automatizados
+
+A suíte de testes é executada com `pytest` utilizando o isolamento configurado em `pytest.ini` e `synapse_project/test_settings.py`:
 
 ```bash
-# 1. Clone e entre no diretório
-git clone https://github.com/alar98-dev/Synapse.git
-cd Synapse
-
-# 2. Prepare environment
-cp .env.example .env
-# Opcional: configure os hooks do filamento
-export FILAMENT_WEBHOOK_URL=https://hooks.internal/filament
-# LLM callbacks agora passam pelo workflow n8n que recebe os mesmos payloads
-
-## 🎯 Filament Hooks: estrutura e fluxo
-
-- **Webhook**
-  - Endpoint recebe POST com `FilamentAuditEntry.to_dict()` (vetor, módulo, story, estado, decisão, razão, timestamp, contexto de payload/dimensões).
-  - Pode ser usado para alimentar dashboards de auditoria, gatilhos de alertas ou replicar logs em outro sistema.
-  - Exemplo de payload:
-
-```json
-{
-  "vector_name": "CourseEnrollment",
-  "module": "courses.CourseViewSet.enroll",
-  "story_id": "BACKLOG-1234",
-  "state": "S2",
-  "decision": "ACEITAR",
-  "reason": "Evento validado pelo filamento",
-  "timestamp": "2026-01-14T11:37:22.123456",
-  "context_snapshot": {
-    "dimensions": {
-      "identidade": {"user_id": 7, "role": "student"},
-      "contexto": {"course_id": 5, "cohort_id": 3},
-      "dependencia": {"duplicate": false},
-      "risco": {"capacity": 12, "current": 5, "score": 0.5}
-    },
-    "payload": {"course_id": 5, "requested_cohort": 3, "caller": "user@example.org"}
-  }
-}
+# Executar todos os testes de unidade e API (sem dependências externas)
+.venv/bin/pytest
 ```
 
-- **LLM orchestration via n8n**
-  - O webhook envia os mesmos `FilamentAuditEntry` que podem acionar nós HTTP dentro do workflow para disparar chamadas a LLMs, enriquecer prompts ou alimentar agentes.
-  - Configure os nós em n8n para chamar a API LLM desejada, registrar a resposta e fechar o ciclo de aprendizado, mantendo toda interação auditada.
+**Resultado consolidado**: **49 testes automatizados com 100% de aprovação** em ~1,6 segundos, cobrindo:
+- Serviços de inscrição, turmas, streaks e leaderboard (`courses`).
+- Orquestrador de avaliação socrática (`cognition`).
+- Governança de grupos RBAC e endpoint `/me/stats/` (`users`).
+- Roteamento e persistência de auditoria de webhooks (`payments`).
+- Integridade de submissões de código e logs de sandbox (`submissions`).
+- Propagação de `correlation_id` via middleware (`core`).
 
-## 🧠 Fluxo esperado do Filamento
+---
 
-1. `CourseViewSet.enroll` cria o `EventVector` e avança por S1a/S1b antes de chamar `FilamentDecisionService.process`.  
-2. `FilamentDecisionService` avalia identidade/contexto/risco e dispara `default_filament_hooks` com o `FilamentAuditEntry`.  
-3. Hooks enviam POSTs para as URLs configuradas e registram logs locais ao faltar as variáveis.  
-4. Após persistência (`S3`), o serviço registra um novo entry e, em seguida, um `record_learning` para S4 para manter o aprendizado visível.  
-5. O workflow n8n responsável por `S4` pode observar o mesmo payload ou uma versão enriquecida para alimentar dashboards ou acionar LLMs internos e outros agentes.
+## 🔒 Governança e Segurança
 
-# 3. Build e start services
-docker-compose build
-docker-compose up -d
-
-# 4. Run migrations e create superuser
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py createsuperuser
-
-# 5. Acesse
-# - API: http://localhost:8000/api/v1/
-# - Swagger: http://localhost:8000/api/v1/docs/
-# - Admin: http://localhost:8000/admin/
-# - Worker logs: docker-compose logs -f worker
-```
-
-### Testar Fluxo de Execução
-
-```bash
-# 1. Obter token JWT
-curl -X POST http://localhost:8000/api/v1/auth/token/ \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"yourpassword"}'
-
-# 2. Submeter código
-curl -X POST http://localhost:8000/api/v1/sandbox/execute/ \
-  -H "Authorization: Bearer <seu_token>" \
-  -H "Content-Type: application/json" \
-  -d '{"code":"print(1+1)","language":"python"}'
-
-# 3. Monitorar job em /api/v1/sandbox/<job_id>/
-```
-
-## 📁 Estrutura
-
-```
-synapse/
-├── synapse_project/     # Django project settings
-├── core/                # Healthcheck & core utilities
-├── users/               # Custom User, JWT auth
-├── courses/             # Courses, Cohorts (MVP)
-├── sandbox/             # Code execution engine (Celery + Docker)
-├── submissions/         # Problem, Submission models
-├── docker-compose.yml   # Dev stack: PostgreSQL, Redis, Celery worker
-├── Dockerfile
-├── docker-entrypoint.sh
-├── requirements.txt
-├── docs/                # Documentation
-│   ├── plan.md          # Technical & pedagogical plan
-│   ├── screens.md       # 30 main UI screens
-│   ├── missing_implementation.md  # Current gaps & roadmap
-│   └── index.md
-└── .github/workflows/   # CI/CD (GitHub Actions)
-```
-
-## 🔑 Key Endpoints
-
-### Users & Auth
-- `POST /api/v1/auth/register/` — Register new user
-- `POST /api/v1/auth/token/` — Get JWT token
-- `POST /api/v1/auth/token/refresh/` — Refresh token
-- `GET /api/v1/auth/me/` — Current user profile
-
-### Courses & Cohorts
-- `GET/POST /api/v1/courses/` — List/create courses
-- `GET/POST /api/v1/courses/cohorts/` — List/create cohorts
-
-### Code Execution (Sandbox)
-- `POST /api/v1/sandbox/execute/` — Submit code execution job
-- `GET /api/v1/sandbox/<id>/` — Get job status & output
-- `POST /api/v1/sandbox/<id>/cancel/` — Cancel running job
-
-### Submissions
-- `GET/POST /api/v1/submissions/submissions/` — List/create submissions
-- `GET/POST /api/v1/submissions/problems/` — List/create problems (admin)
-
-### Billing (Payments)
-- `GET /api/v1/payments/subscriptions/` — Get current subscription and plan limits
-- `POST /api/v1/payments/subscriptions/upgrade` — Start upgrade (returns checkout_id or redirect)
-- `POST /api/v1/payments/subscriptions/cancel` — Cancel subscription (supports cancel_at_period_end)
-- `GET /api/v1/payments/receipts/` — List receipts
-- `GET /api/v1/payments/receipts/:id/download` — Download receipt (PDF/CSV)
-
-Quick example (get subscription):
-
-```bash
-curl -X GET "http://localhost:8000/api/v1/payments/subscriptions/" \
-  -H "Authorization: Bearer <JWT>" \
-  -H "Accept: application/json"
-```
-
-See `docs/planning/08-billing.md` for payload examples, test snippets and implementation notes.
-
-## 🛠️ Development
-
-### Run tests
-```bash
-docker-compose exec web python manage.py test
-# ou com pytest
-docker-compose exec web pytest
-```
-
-### Make migrations
-```bash
-docker-compose exec web python manage.py makemigrations
-docker-compose exec web python manage.py migrate
-```
-
-### Access Django shell
-```bash
-docker-compose exec web python manage.py shell
-```
-
-### View logs
-```bash
-docker-compose logs -f web       # Django app
-docker-compose logs -f worker    # Celery worker
-docker-compose logs -f db        # PostgreSQL
-docker-compose logs -f redis     # Redis
-```
-
-## ⚠️ Known Issues & Tech Debt
-
-1. **Worker uses `/var/run/docker.sock`** — security risk, use isolated executor in production
-2. **No resource limits** on containers — add CPU/memory limits
-3. **Python only** — add support for JS, Go, Rust
-4. **No cleanup mechanism** — orphaned containers possible
-5. **No autoscaling** — manual Celery worker scaling
-
-Veja `docs/missing_implementation.md` para roadmap completo.
-
-## 📚 Documentation
-
-- `docs/plan.md` — Technical & pedagogical plan (PT-BR)
-- `docs/screens.md` — 30 UI screens specification (PT-BR)
-- `docs/implementation_plan.md` — Implementation strategy (PT-BR)
-- `docs/missing_implementation.md` — Current gaps & priorities (PT-BR)
-
-- `docs/frontend_islands_architecture.md` — Frontend: HTML/JS + React Islands (Progressive Enhancement)
-
-## 🔗 Links
-
-- Repository: https://github.com/alar98-dev/Synapse
-- Plan: `docs/plan.md` (PT-BR)
-- Issues: GitHub Issues
-
-## 📝 License
-
-(To be defined)
+1. **Isolamento de Rede (100% Loopback)**: Todas as conexões de banco de dados e APIs internas operam estritamente vinculadas a `127.0.0.1`, evitando exposição desnecessária em interfaces de rede públicas.
+2. **Proteção IDOR**: Serializers de escrita não aceitam campos de identidade manipuláveis pelo cliente (`user = PrimaryKeyRelatedField(read_only=True)`).
+3. **Auditoria Transacional**: Toda ação crítica de pagamento e submissão persiste metadados enriquecidos com `correlation_id` para fins forenses e de conformidade.
