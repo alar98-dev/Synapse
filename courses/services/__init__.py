@@ -2,6 +2,7 @@
 from .enrollment_service import EnrollmentService
 from .leaderboard_service import CohortLeaderboardService
 from .polaris_client import PolarisClient
+from .progress_service import ProgressService
 
-__all__ = ['EnrollmentService', 'CohortLeaderboardService', 'PolarisClient']
+__all__ = ['EnrollmentService', 'CohortLeaderboardService', 'PolarisClient', 'ProgressService']
 

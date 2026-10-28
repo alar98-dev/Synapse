@@ -39,8 +39,8 @@
 ## Próximos Passos Priorizados 🔄
 
 ### Fase 1: Gamificação com Foco em Consistência (Pedagógica)
-- [ ] Implementar serviço de cálculo de sequências diárias de estudo (`ProgressService.calculate_streak`) em `courses/services/`.
-- [ ] Criar testes unitários para verificação de streaks consecutivos e quebra de sequência.
+- [x] Implementar serviço de cálculo de sequências diárias de estudo (`ProgressService.calculate_streak`) em `courses/services/`.
+- [x] Criar testes unitários para verificação de streaks consecutivos e quebra de sequência (4 testes passando).
 - [ ] Expor o endpoint `/api/v1/auth/me/stats/` retornando streaks e pontuação acumulada.
 
 ### Fase 2: Interface Web & Consumo da API

@@ -2,8 +2,9 @@ import datetime
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from courses.models import Course, Module, Lesson, Cohort, Enrollment, Progress
-from courses.services import EnrollmentService, CohortLeaderboardService, PolarisClient
+from courses.services import EnrollmentService, CohortLeaderboardService, PolarisClient, ProgressService
 from unittest.mock import patch, Mock
+from django.utils import timezone
 from submissions.models import Problem, Submission
 
 User = get_user_model()
@@ -151,4 +152,49 @@ class PolarisClientTest(TestCase):
         scaffold = self.client.generate_challenge_scaffold("Sorting", "QuickSort")
         self.assertIn("def solution():", scaffold["initial_code"])
         self.assertIn("assert solution is not None", scaffold["test_template"])
+
+
+class ProgressServiceTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='streak_user', email='streak@example.com', password='pass')
+        self.course = Course.objects.create(title='Course for Streak', owner=self.user)
+        self.module = Module.objects.create(course=self.course, title='M1')
+        self.lessons = [
+            Lesson.objects.create(module=self.module, title=f'L{i}', order=i)
+            for i in range(1, 5)
+        ]
+
+    def test_zero_streak_without_progress(self):
+        streak = ProgressService.calculate_streak(self.user)
+        self.assertEqual(streak, 0)
+
+    def test_streak_with_today_completed(self):
+        p = Progress.objects.create(user=self.user, lesson=self.lessons[0], is_completed=True)
+        streak = ProgressService.calculate_streak(self.user, reference_date=datetime.date.today())
+        self.assertEqual(streak, 1)
+
+    def test_multi_day_streak(self):
+        today = datetime.date.today()
+        # Create completions for today, yesterday, and 2 days ago
+        for i, days_ago in enumerate([0, 1, 2]):
+            record_date = today - datetime.timedelta(days=days_ago)
+            p = Progress.objects.create(user=self.user, lesson=self.lessons[i], is_completed=True)
+            naive_dt = datetime.datetime.combine(record_date, datetime.time(12, 0))
+            aware_dt = timezone.make_aware(naive_dt) if timezone.is_naive(naive_dt) else naive_dt
+            Progress.objects.filter(id=p.id).update(completed_at=aware_dt)
+
+        streak = ProgressService.calculate_streak(self.user, reference_date=today)
+        self.assertEqual(streak, 3)
+
+    def test_broken_streak_due_to_gap(self):
+        today = datetime.date.today()
+        # Completed 3 days ago, but missed yesterday and 2 days ago
+        p = Progress.objects.create(user=self.user, lesson=self.lessons[0], is_completed=True)
+        naive_dt = datetime.datetime.combine(today - datetime.timedelta(days=3), datetime.time(12, 0))
+        aware_dt = timezone.make_aware(naive_dt) if timezone.is_naive(naive_dt) else naive_dt
+        Progress.objects.filter(id=p.id).update(completed_at=aware_dt)
+
+        streak = ProgressService.calculate_streak(self.user, reference_date=today)
+        self.assertEqual(streak, 0)
+
 
