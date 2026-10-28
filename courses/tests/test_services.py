@@ -2,7 +2,8 @@ import datetime
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from courses.models import Course, Module, Lesson, Cohort, Enrollment, Progress
-from courses.services import EnrollmentService, CohortLeaderboardService
+from courses.services import EnrollmentService, CohortLeaderboardService, PolarisClient
+from unittest.mock import patch, Mock
 from submissions.models import Problem, Submission
 
 User = get_user_model()
@@ -121,3 +122,33 @@ class CohortLeaderboardServiceTest(TestCase):
         # Alice should be 2nd with 20 points
         self.assertEqual(leaderboard[1]['username'], 'alice')
         self.assertEqual(leaderboard[1]['total_points'], 20)
+
+
+class PolarisClientTest(TestCase):
+    def setUp(self):
+        self.client = PolarisClient()
+
+    @patch('requests.get')
+    def test_check_health_success(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda: {"ok": True})
+        self.assertTrue(self.client.check_health())
+
+    @patch('requests.get')
+    def test_check_health_failure(self, mock_get):
+        mock_get.side_effect = Exception("Connection refused")
+        self.assertFalse(self.client.check_health())
+
+    @patch('requests.post')
+    def test_generate_challenge_scaffold_success(self, mock_post):
+        mock_post.return_value = Mock(status_code=200, json=lambda: {"response": "Scaffold generated"})
+        scaffold = self.client.generate_challenge_scaffold("Binary Search", "Implement binary search algorithm")
+        self.assertIn("initial_code", scaffold)
+        self.assertIn("test_template", scaffold)
+
+    @patch('requests.post')
+    def test_generate_challenge_scaffold_fallback(self, mock_post):
+        mock_post.side_effect = Exception("Timeout")
+        scaffold = self.client.generate_challenge_scaffold("Sorting", "QuickSort")
+        self.assertIn("def solution():", scaffold["initial_code"])
+        self.assertIn("assert solution is not None", scaffold["test_template"])
+
