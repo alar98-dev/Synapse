@@ -1,60 +1,51 @@
-# Dimensional Audit Implementation TODO
+# Synapse Roadmap & Task Tracker
 
-## Completed Tasks ✅
+## Marcos Concluídos ✅
 
-### High Priority - Submissions Module
-- [x] Implement SubmissionLog model for persistent audit logging
-- [x] Add log persistence in sandbox/tasks.py for execution jobs
-- [x] Create unit tests for SubmissionLog (test_submission_log.py)
-- [x] Create integration test for submission API with logging
-- [x] Generate and run migrations for SubmissionLog
-- [x] Commit changes and create feature/submissions/persist-logs branch
-- [x] Push PR for submissions logs persistence
+### 1. Consolidação e Governança de Branches
+- [x] Unificação e merge das branches de telemetria, pagamentos e correlação na branch principal `main`.
+- [x] Configuração de repositório remoto `origin` sincronizado em `alar98-dev/Synapse.git`.
 
-### High Priority - Correlation Propagation
-- [x] Implement CorrelationIdMiddleware for global correlation ID handling
-- [x] Add middleware to settings.py
-- [x] Create unit tests for CorrelationIdMiddleware (test_middleware.py)
-- [x] Configure test database to use SQLite for isolation
-- [x] Commit changes and create chore/telemetry/correlation-propagation branch
-- [x] Push PR for correlation propagation middleware
+### 2. Refatoração DDD, SOLID e ORM (Courses & Submissions)
+- [x] Extração de regras de negócio de `courses/views.py` para camada de serviços de domínio:
+  - `EnrollmentService`: Validação de capacidade de turmas, regras de duplicidade e ciclo S1a -> S4.
+  - `CohortLeaderboardService`: Agregação de pontos de gamificação e classificação de turmas.
+- [x] Proteção contra IDOR em `submissions/serializers.py` (`user` configurado como `read_only`).
+- [x] Propagação e persistência estrita de `correlation_id` em submissões.
 
-### High Priority - Payments Webhook Audit Logging (FIL-002)
-- [x] Add PaymentLog model for persistent webhook audit logging
-- [x] Update stripe_webhook to log all events with correlation_id
-- [x] Log webhook reception, filament decisions, payment processing, and errors
-- [x] Create unit tests for PaymentLog model
-- [x] Generate migration for PaymentLog table
-- [x] Commit changes and create feature/payments/webhook-audit-logging branch
-- [x] Push PR for payments webhook audit logging
+### 3. Integração com Polaris Agent (:8080)
+- [x] Implementação de `PolarisClient` em `courses/services/polaris_client.py`.
+- [x] Health check automático e síntese de código inicial (`initial_code`) e gabarito (`test_template`) com fallback resiliente.
+- [x] Cobertura de testes unitários para o cliente Polaris (4 testes com mocks e fallbacks).
 
-### Testing and Validation
-- [x] Run unit tests (passing for SubmissionLog and middleware)
-- [x] Validate middleware header propagation
-- [x] Validate log persistence with correlation_id and metadata
+### 4. Motor de Avaliação Socrática (Cognition)
+- [x] Adição do campo `needs_human_intervention` no modelo `AssessmentSession` com migração `0002`.
+- [x] Criação de suíte de testes unitários e de API em `cognition/tests/test_cognitive_orchestrator.py`.
+- [x] Resolução de conflito de importação com `--import-mode=importlib` no `pytest.ini`.
 
-## Pending Tasks 🔄
+### 5. Banco de Dados Local & Grade Inicial de Lançamento
+- [x] Provisionamento de banco local `synapse_db` no PostgreSQL 17 com extensão `pgvector`.
+- [x] Aplicação de todas as migrações Django pendentes.
+- [x] Povoamento via `scripts/seed_data.py` com a grade inicial de 6 cursos (2 gratuitos, 4 avançados):
+  - Trilha 1 (Gratuita): Lógica & Algoritmos Práticos; Clean Code & Princípios SOLID.
+  - Trilha 2 (Premium): Domain-Driven Design (DDD) na Prática; Microsserviços & Event-Driven APIs.
+  - Trilha 3 (Premium): Concorrência Segura & Memória Zero-Copy; Engenharia de IA & Avaliação Socrática.
 
-### Integration Testing
-- [ ] Run full integration tests with Celery worker for end-to-end log persistence
-- [ ] Expand integration tests for correlation propagation across modules
+### 6. Qualidade & Testes Automatizados
+- [x] **42 testes automatizados** executados e 100% aprovados em ~1,40s.
 
-### Next High Priority Modules
-- [x] Implement Payments webhook audit logging (FIL-002)
-- [ ] Add AI Center prompt provenance tracking (FIL-003)
-- [ ] Audit Dashboard telemetry gaps (D4 - Observability)
-- [ ] Implement Alerts correlation propagation (D5 - Reliability)
+---
 
-### Validation and Deployment
-- [ ] Review and merge PRs:
-  - https://github.com/alar98-dev/Synapse/pull/new/feature/submissions/persist-logs
-  - https://github.com/alar98-dev/Synapse/pull/new/chore/telemetry/correlation-propagation
-  - https://github.com/alar98-dev/Synapse/pull/new/feature/payments/webhook-audit-logging
-- [ ] Validate PRs in staging environment
-- [ ] Update dimensional audit report with completed implementations
+## Próximos Passos Priorizados 🔄
 
-## Notes
-- All events now include correlation_id for traceability
-- Unit tests are green and provide coverage for new features
-- Migrations created and ready for deployment
-- Branches created and PRs pushed for review
+### Fase 1: Gamificação com Foco em Consistência (Pedagógica)
+- [ ] Implementar serviço de cálculo de sequências diárias de estudo (`ProgressService.calculate_streak`) em `courses/services/`.
+- [ ] Criar testes unitários para verificação de streaks consecutivos e quebra de sequência.
+- [ ] Expor o endpoint `/api/v1/auth/me/stats/` retornando streaks e pontuação acumulada.
+
+### Fase 2: Interface Web & Consumo da API
+- [ ] Revisar as rotas da SPA no `frontend/` para listar os 6 cursos populados no banco.
+- [ ] Validar o fluxo visual de inscrição gratuita vs checkout de cursos pagos.
+
+### Fase 3: Validação do Sandbox de Código
+- [ ] Executar teste de ponta a ponta com o worker do Celery processando um exercício real no Sandbox.
