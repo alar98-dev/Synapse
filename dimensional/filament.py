@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 import logging
 import os
@@ -160,7 +160,7 @@ class FilamentDecisionService:
             state=state,
             decision=decision,
             reason=reason,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             context_snapshot={
                 "dimensions": {
                     "identidade": dict(vector.dimensions.identidade),

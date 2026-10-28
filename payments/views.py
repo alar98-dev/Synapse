@@ -116,7 +116,23 @@ class PaymentViewSet(viewsets.ModelViewSet):
             
         payment.amount = amount / 100
         payment.save()
-        
+
+        # Check if local simulation is requested or if Stripe secret key is unconfigured
+        is_simulation = request.data.get('simulate', False) or not stripe.api_key or stripe.api_key == 'sk_test_mock'
+        if is_simulation:
+            mock_session_id = f"sim_session_{payment.id}"
+            handle_checkout_session({
+                'id': mock_session_id,
+                'client_reference_id': str(payment.id),
+            })
+            return Response({
+                'id': mock_session_id,
+                'url': None,
+                'simulated': True,
+                'success': True,
+                'message': f'Compra simulada com sucesso! Você foi matriculado em {name}.',
+            }, status=status.HTTP_200_OK)
+
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],

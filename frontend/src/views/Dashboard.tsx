@@ -185,19 +185,56 @@ export default function Dashboard({ token }: DashboardProps) {
           </div>
         </section>
 
-        {/* Sidebar Activity & Highlights */}
-        <section className="rounded-3xl bg-slate-900/30 p-8 border border-slate-800 flex flex-col justify-between shadow-xl">
+        {/* Sidebar Activity & Cognitive Profile */}
+        <section className="rounded-3xl bg-slate-900/40 p-8 border border-slate-800 flex flex-col justify-between shadow-xl space-y-6">
           <div>
-            <h3 className="text-lg font-bold text-white mb-6">Atividade Pedagógica</h3>
-            <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <i className="bx bx-radar text-xl text-cyan-400"></i>
+              <h3 className="text-lg font-bold text-white">Perfil Cognitivo (IA)</h3>
+            </div>
+            
+            <div className="space-y-3.5 mb-6">
+              <div>
+                <div className="flex justify-between text-[11px] font-bold mb-1">
+                  <span className="text-slate-400">Compreensão Conceitual</span>
+                  <span className="text-cyan-400">88%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-cyan-400 rounded-full" style={{ width: '88%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-[11px] font-bold mb-1">
+                  <span className="text-slate-400">Raciocínio Causal & Lógica</span>
+                  <span className="text-indigo-400">82%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-400 rounded-full" style={{ width: '82%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-[11px] font-bold mb-1">
+                  <span className="text-slate-400">Detecção de Anomalias / Debug</span>
+                  <span className="text-emerald-400">92%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-400 rounded-full" style={{ width: '92%' }}></div>
+                </div>
+              </div>
+            </div>
+
+            <h3 className="text-xs font-black uppercase text-slate-500 tracking-widest mb-3">Atividade Pedagógica</h3>
+            <div className="space-y-3">
               <ActivityItem text="Catálogo expandido com 6 especializações" time="Recente" />
               <ActivityItem text="Suporte ao Sandbox com streaming lock-free" time="Hoje" />
               <ActivityItem text="Tutor Socrático Polaris 127.0.0.1 ativo" time="Ativo" />
-              <ActivityItem text="Auditoria de submissões com Correlation ID" time="Ativo" />
+              <ActivityItem text="Certificação criptográfica com UUID único" time="Novo" />
             </div>
           </div>
 
-          <div className="mt-8 p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-xs text-indigo-300">
+          <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-xs text-indigo-300">
             <div className="flex items-center gap-2 font-bold mb-1">
               <i className="bx bx-info-circle"></i> Arquitetura Loopback
             </div>

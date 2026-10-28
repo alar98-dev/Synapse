@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import coursesApi, { Course } from '../api/courses'
 import CohortModal from '../components/CohortModal'
+import CheckoutModal from '../components/CheckoutModal'
 
 interface CoursesViewProps {
   onOpenCourse: (id: number, title?: string) => void
@@ -13,6 +14,7 @@ export default function CoursesView({ onOpenCourse }: CoursesViewProps) {
   const [loading, setLoading] = useState(false)
   const [enrollingId, setEnrollingId] = useState<number | null>(null)
   const [selectedForCohort, setSelectedForCohort] = useState<{id: number, title: string} | null>(null)
+  const [selectedForCheckout, setSelectedForCheckout] = useState<Course | null>(null)
 
   const fetchCourses = () => {
     setLoading(true)
@@ -238,11 +240,7 @@ export default function CoursesView({ onOpenCourse }: CoursesViewProps) {
                       </button>
                     ) : (
                       <button
-                        onClick={() =>
-                          alert(
-                            `Curso Premium: "${course.title}". Matrícula liberada via checkout ou acesso institucional.`
-                          )
-                        }
+                        onClick={() => setSelectedForCheckout(course)}
                         className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black uppercase hover:scale-105 active:scale-95 transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-1.5"
                       >
                         <i className="bx bx-lock-open text-base"></i>
@@ -264,6 +262,16 @@ export default function CoursesView({ onOpenCourse }: CoursesViewProps) {
           onClose={() => setSelectedForCohort(null)}
           onSuccess={() => {
             alert('Turma provisionada com sucesso!')
+            fetchCourses()
+          }}
+        />
+      )}
+
+      {selectedForCheckout && (
+        <CheckoutModal
+          course={selectedForCheckout}
+          onClose={() => setSelectedForCheckout(null)}
+          onSuccess={() => {
             fetchCourses()
           }}
         />

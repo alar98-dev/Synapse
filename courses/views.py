@@ -1,8 +1,8 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Count, Q
-from .models import Course, Cohort, Module, Lesson, Enrollment, Progress
+from .models import Course, Cohort, Module, Lesson, Enrollment, Progress, Certificate
 from submissions.models import Submission
 from .serializers import (
     CourseSerializer, CohortSerializer, ModuleSerializer,
@@ -118,6 +118,26 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer = EnrollmentSerializer(result.enrollment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['get', 'post'], permission_classes=[permissions.IsAuthenticated])
+    def certificate(self, request, pk=None):
+        """Claim or view completion certificate for this course."""
+        course = self.get_object()
+        from .services.certificate_service import CertificateService
+
+        if request.method == 'POST':
+            result = CertificateService.claim_certificate(request.user, course)
+            if not result['success']:
+                return Response(result, status=status.HTTP_400_BAD_REQUEST)
+            http_status = status.HTTP_200_OK if result.get('already_issued') else status.HTTP_201_CREATED
+            return Response(result, status=http_status)
+        else:
+            eligibility = CertificateService.evaluate_eligibility(request.user, course)
+            existing_cert = Certificate.objects.filter(user=request.user, course=course).first()
+            if existing_cert:
+                eligibility['certificate_id'] = str(existing_cert.id_code)
+                eligibility['issued_at'] = existing_cert.issued_at.isoformat()
+            return Response(eligibility)
+
 
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
@@ -182,3 +202,15 @@ class CohortViewSet(viewsets.ModelViewSet):
 
         leaderboard_data = CohortLeaderboardService.calculate_leaderboard(cohort)
         return Response(leaderboard_data)
+
+
+class CertificateVerifyView(views.APIView):
+    """Public verification endpoint for issued certificates."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, id_code):
+        from .services.certificate_service import CertificateService
+        result = CertificateService.verify_certificate(str(id_code))
+        if not result.get('valid'):
+            return Response(result, status=status.HTTP_404_NOT_FOUND)
+        return Response(result, status=status.HTTP_200_OK)

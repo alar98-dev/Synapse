@@ -18,18 +18,32 @@ client.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
+export interface CheckoutResult {
+  id: string
+  url?: string | null
+  simulated?: boolean
+  success?: boolean
+  message?: string
+  error?: string
+}
+
 const paymentsApi = {
-  createCheckoutSession: async (courseId?: number, planId?: number) => {
+  createCheckoutSession: async (
+    courseId?: number,
+    planId?: number,
+    simulate: boolean = false
+  ): Promise<CheckoutResult> => {
     const response = await client.post('/payments/payments/create_checkout_session/', {
       course_id: courseId,
-      plan_id: planId
+      plan_id: planId,
+      simulate: simulate,
     })
-    return response.data // { id: string, url: string }
+    return response.data
   },
   fetchSubscription: async () => {
     const response = await client.get('/payments/subscriptions/')
     return response.data
-  }
+  },
 }
 
 export default paymentsApi
