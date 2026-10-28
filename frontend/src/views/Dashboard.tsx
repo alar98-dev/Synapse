@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import authClient from '../api/authClient'
+import authClient, { UserStats } from '../api/authClient'
 
 interface SessionSummary {
   id: number
@@ -9,7 +9,7 @@ interface SessionSummary {
 }
 
 interface DashboardProps {
-  token: string
+  token?: string
 }
 
 export default function Dashboard({ token }: DashboardProps) {
@@ -18,26 +18,37 @@ export default function Dashboard({ token }: DashboardProps) {
     active_courses: 0,
     lessons_today: 0,
     total_students: 0,
-    total_materials: 0
+    total_materials: 0,
   })
+  const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let isMounted = true
     setLoading(true)
-    
-    // Fetch stats and sessions in parallel
-    Promise.all([
-      authClient.fetchSessions(token),
-      authClient.fetchStats()
-    ]).then(([sessionsData, statsData]) => {
-      if (isMounted) {
-        if (sessionsData) setSessions(sessionsData)
-        if (statsData) setStats(statsData)
-      }
-    }).finally(() => {
-      if (isMounted) setLoading(false)
-    })
+
+    // Fetch stats, user gamification metrics and sessions in parallel
+    Promise.allSettled([
+      authClient.fetchSessions(),
+      authClient.fetchStats(),
+      authClient.fetchUserStats(),
+    ])
+      .then(([sessionsRes, statsRes, userStatsRes]) => {
+        if (!isMounted) return
+
+        if (sessionsRes.status === 'fulfilled' && sessionsRes.value) {
+          setSessions(sessionsRes.value)
+        }
+        if (statsRes.status === 'fulfilled' && statsRes.value) {
+          setStats(statsRes.value)
+        }
+        if (userStatsRes.status === 'fulfilled' && userStatsRes.value) {
+          setUserStats(userStatsRes.value)
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
 
     return () => {
       isMounted = false
@@ -45,46 +56,81 @@ export default function Dashboard({ token }: DashboardProps) {
   }, [token])
 
   return (
-    <div className="space-y-8">
-      {/* AI Insight Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-8 flex items-center gap-6 group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--syn-primary)]/10 blur-[100px] rounded-full -mr-20 -mt-20"></div>
-        <div className="h-16 w-16 rounded-2xl bg-[var(--syn-primary)]/20 flex items-center justify-center text-[var(--syn-primary)] text-3xl shadow-inner border border-[var(--syn-primary)]/20 group-hover:scale-110 transition-transform duration-500">
-           <i className="bx bxs-magic-wand"></i>
+    <div className="space-y-8 pb-16">
+      {/* Gamification & Learner Streak Hero */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-900/80 border border-slate-800 p-8 flex flex-wrap items-center justify-between gap-6 group backdrop-blur-md shadow-2xl">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--syn-primary)]/10 blur-[100px] rounded-full -mr-20 -mt-20"></div>
+
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="h-16 w-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-3xl shadow-inner group-hover:scale-110 transition-transform duration-500">
+            <i className="bx bxs-flame"></i>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase text-amber-400 tracking-wider">
+                Ofensiva de Aprendizagem
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+              <span className="text-xs text-slate-400 font-medium">
+                {userStats?.username ? `@${userStats.username}` : 'Estudante'}
+              </span>
+            </div>
+            <h3 className="text-3xl font-black text-white mt-1">
+              {userStats?.study_streak_days ?? 0} {userStats?.study_streak_days === 1 ? 'Dia Seguido' : 'Dias Seguidos'}
+            </h3>
+            <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+              Continue submetendo código e interagindo com o tutor socrático diariamente para manter seu ritmo de evolução ativo.
+            </p>
+          </div>
         </div>
-        <div className="relative z-10 flex-1">
-          <h3 className="text-xl font-bold text-white mb-2">Synapse AI Insights</h3>
-          <p className="text-slate-400 max-w-2xl leading-relaxed">
-            Sua taxa de conclusão aumentou <span className="text-emerald-400 font-bold">12.5%</span> esta semana. 
-            Sugerimos focar no módulo de <span className="text-[var(--syn-primary)] font-semibold">Redes Neurais</span> para o próximo sprint.
-          </p>
+
+        {/* Quick User Badges */}
+        <div className="relative z-10 flex flex-wrap items-center gap-3">
+          <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-4 text-center min-w-[110px]">
+            <p className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Matrículas</p>
+            <p className="text-2xl font-black text-white mt-1">{userStats?.enrolled_courses_count ?? 0}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-4 text-center min-w-[110px]">
+            <p className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Aprovações</p>
+            <p className="text-2xl font-black text-emerald-400 mt-1">
+              {userStats?.successful_submissions_count ?? 0}
+            </p>
+          </div>
+          <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-4 text-center min-w-[110px]">
+            <p className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Grupo RBAC</p>
+            <p className="text-xs font-bold text-cyan-400 mt-2 line-clamp-1">
+              {userStats?.groups?.[0] || 'Student'}
+            </p>
+          </div>
         </div>
-        <button 
-          disabled
-          className="relative z-10 bg-slate-800/50 text-slate-500 px-6 py-3 rounded-xl text-xs font-bold border border-slate-700 cursor-not-allowed flex items-center gap-2"
-        >
-          <span>Detalhes completos</span>
-          <span className="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded text-slate-400 uppercase">Em breve</span>
-        </button>
       </div>
 
+      {/* Global Metrics Cards */}
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card label="Cursos ativos" value={stats.active_courses.toString().padStart(2, '0')} trend="+2" />
+        <Card label="Cursos ativos" value={stats.active_courses.toString().padStart(2, '0')} trend="+6 no catálogo" />
         <Card label="Aulas hoje" value={stats.lessons_today.toString().padStart(2, '0')} trend="estável" />
-        <Card label="Alunos" value={stats.total_students.toString().padStart(2, '0')} trend="+5" />
-        <Card label="Materiais" value={stats.total_materials.toString().padStart(2, '0')} trend="-1" />
+        <Card label="Alunos matriculados" value={stats.total_students.toString().padStart(2, '0')} trend="ativos" />
+        <Card label="Materiais & Labs" value={stats.total_materials.toString().padStart(2, '0')} trend="disponíveis" />
       </section>
 
+      {/* Main Grid: Sessions & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <section className="lg:col-span-2 rounded-3xl bg-slate-900/50 backdrop-blur-sm p-8 border border-slate-800">
+        <section className="lg:col-span-2 rounded-3xl bg-slate-900/50 backdrop-blur-sm p-8 border border-slate-800 shadow-xl">
           <header className="mb-6 flex items-center justify-between">
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Live Monitoring</p>
-              <h3 className="text-2xl font-bold text-white">Sessões Recentes</h3>
+              <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">
+                Monitoramento Cognitivo
+              </p>
+              <h3 className="text-2xl font-bold text-white">Sessões Recentes de Avaliação</h3>
             </div>
-            <button className="text-xs font-bold text-[var(--syn-primary)] hover:underline uppercase tracking-tighter" onClick={() => window.location.reload()}>Atualizar agora</button>
+            <button
+              className="text-xs font-bold text-[var(--syn-primary)] hover:underline uppercase tracking-tighter"
+              onClick={() => window.location.reload()}
+            >
+              Atualizar
+            </button>
           </header>
-          
+
           {loading && (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -92,51 +138,71 @@ export default function Dashboard({ token }: DashboardProps) {
               ))}
             </div>
           )}
-          
+
           {!loading && sessions.length === 0 && (
             <div className="py-20 text-center">
-               <i className="bx bx-scan text-5xl text-slate-700 mb-4"></i>
-               <p className="text-slate-500 text-sm">Nenhuma sessão ativa encontrada.</p>
+              <i className="bx bx-brain text-5xl text-slate-700 mb-4"></i>
+              <p className="text-slate-500 text-sm">Nenhuma sessão ativa de avaliação cognitiva encontrada.</p>
+              <p className="text-xs text-slate-600 mt-1">
+                Acesse uma lição e inicie o Tutor Socrático para gerar métricas de raciocínio.
+              </p>
             </div>
           )}
 
           <div className="space-y-4">
             {sessions.map((session) => (
-              <article key={session.id} className="rounded-2xl bg-slate-950/40 p-5 border border-slate-800 hover:border-[var(--syn-primary)]/30 transition-all flex items-center justify-between group">
+              <article
+                key={session.id}
+                className="rounded-2xl bg-slate-950/40 p-5 border border-slate-800 hover:border-[var(--syn-primary)]/30 transition-all flex items-center justify-between group"
+              >
                 <div className="flex items-center gap-4">
                   <div className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-500 group-hover:text-[var(--syn-primary)] transition-colors">
-                    <i className="bx bx-brain"></i>
+                    <i className="bx bx-brain text-lg"></i>
                   </div>
                   <div>
-                    <h4 className="font-bold text-white">Aula {session.lesson}</h4>
+                    <h4 className="font-bold text-white">Aula #{session.lesson}</h4>
                     <p className="text-xs text-slate-500 uppercase tracking-tighter">Sessão #{session.id}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase ${session.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-800 text-slate-400'}`}>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase border ${
+                      session.status === 'converged'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                        : session.status === 'active'
+                        ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}
+                  >
                     {session.status}
                   </span>
-                  <p className="text-[10px] text-slate-600 mt-2 font-mono">{new Date(session.started_at).toLocaleTimeString()}</p>
+                  <p className="text-[10px] text-slate-600 mt-2 font-mono">
+                    {session.started_at ? new Date(session.started_at).toLocaleTimeString() : 'N/A'}
+                  </p>
                 </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="rounded-3xl bg-slate-900/30 p-8 border border-slate-800 flex flex-col">
-          <h3 className="text-lg font-bold text-white mb-6">Atividade Recente</h3>
-          <div className="space-y-6 flex-1">
-            <ActivityItem text="Nova aula publicada em ML" time="12 min atrás" />
-            <ActivityItem text="Material extra: RAG Setup" time="45 min atrás" />
-            <ActivityItem text="Momento ao vivo agendado" time="2h atrás" />
-            <ActivityItem text="Backup do sistema concluído" time="5h atrás" />
+        {/* Sidebar Activity & Highlights */}
+        <section className="rounded-3xl bg-slate-900/30 p-8 border border-slate-800 flex flex-col justify-between shadow-xl">
+          <div>
+            <h3 className="text-lg font-bold text-white mb-6">Atividade Pedagógica</h3>
+            <div className="space-y-6">
+              <ActivityItem text="Catálogo expandido com 6 especializações" time="Recente" />
+              <ActivityItem text="Suporte ao Sandbox com streaming lock-free" time="Hoje" />
+              <ActivityItem text="Tutor Socrático Polaris 127.0.0.1 ativo" time="Ativo" />
+              <ActivityItem text="Auditoria de submissões com Correlation ID" time="Ativo" />
+            </div>
           </div>
-          <button 
-            disabled
-            className="w-full mt-8 py-3 rounded-xl border border-slate-800 text-slate-600 text-[10px] font-bold uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            Ver logs completos (Em breve)
-          </button>
+
+          <div className="mt-8 p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-xs text-indigo-300">
+            <div className="flex items-center gap-2 font-bold mb-1">
+              <i className="bx bx-info-circle"></i> Arquitetura Loopback
+            </div>
+            Synapse opera em isolamento seguro sem dependências de IPs externos.
+          </div>
         </section>
       </div>
     </div>
@@ -144,13 +210,14 @@ export default function Dashboard({ token }: DashboardProps) {
 }
 
 function Card({ label, value, trend }: { label: string; value: string; trend: string }) {
-  const isUp = trend.startsWith('+');
   return (
-    <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 hover:border-slate-700 transition-all group">
+    <div className="rounded-3xl bg-slate-900/60 border border-slate-800 p-6 hover:border-slate-700 transition-all group backdrop-blur-sm">
       <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4">{label}</p>
       <div className="flex items-end justify-between">
-        <p className="text-4xl font-black text-white group-hover:text-[var(--syn-primary)] transition-colors tracking-tighter">{value}</p>
-        <div className={`text-[10px] font-bold px-2 py-1 rounded-lg ${isUp ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-800 text-slate-500'}`}>
+        <p className="text-4xl font-black text-white group-hover:text-[var(--syn-primary)] transition-colors tracking-tighter">
+          {value}
+        </p>
+        <div className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-400 border border-slate-700">
           {trend}
         </div>
       </div>
@@ -160,13 +227,12 @@ function Card({ label, value, trend }: { label: string; value: string; trend: st
 
 function ActivityItem({ text, time }: { text: string; time: string }) {
   return (
-    <div className="flex gap-4">
-      <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[var(--syn-primary)] shrink-0 shadow-[0_0_10px_var(--syn-primary)]"></div>
+    <div className="flex gap-4 items-start">
+      <div className="mt-1.5 h-2 w-2 rounded-full bg-[var(--syn-primary)] shrink-0 shadow-[0_0_8px_var(--syn-primary)]"></div>
       <div>
-        <p className="text-sm text-slate-300 leading-tight">{text}</p>
-        <p className="text-[10px] text-slate-600 mt-1">{time}</p>
+        <p className="text-xs text-slate-300 leading-tight font-medium">{text}</p>
+        <p className="text-[10px] text-slate-600 mt-1 font-mono">{time}</p>
       </div>
     </div>
   )
 }
-

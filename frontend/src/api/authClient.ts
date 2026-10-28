@@ -35,6 +35,16 @@ interface TokenResponse {
   refresh?: string
 }
 
+export interface UserStats {
+  username: string
+  email: string
+  groups: string[]
+  study_streak_days: number
+  enrolled_courses_count: number
+  submissions_count: number
+  successful_submissions_count: number
+}
+
 const authClient = {
   login: async (username: string, password: string): Promise<TokenResponse> => {
     const response = await client.post('/auth/token/', { username, password })
@@ -47,8 +57,20 @@ const authClient = {
     const response = await client.get('/cognition/sessions/')
     return response.data
   },
+  createAssessmentSession: async (lessonId: number) => {
+    const response = await client.post('/cognition/sessions/', { lesson: lessonId })
+    return response.data
+  },
+  respondAssessmentSession: async (sessionId: number, content: string) => {
+    const response = await client.post(`/cognition/sessions/${sessionId}/respond/`, { content })
+    return response.data
+  },
   fetchStats: async () => {
     const response = await client.get('/core/dashboard/stats/')
+    return response.data
+  },
+  fetchUserStats: async (): Promise<UserStats> => {
+    const response = await client.get('/auth/me/stats/')
     return response.data
   },
   fetchCourses: async () => {
@@ -78,6 +100,10 @@ const authClient = {
       problem: problemId,
       code: code
     })
+    return response.data
+  },
+  refreshSubmissionStatus: async (submissionId: number) => {
+    const response = await client.get(`/submissions/${submissionId}/refresh_status/`)
     return response.data
   },
   fetchSubmissionDetail: async (id: number) => {
